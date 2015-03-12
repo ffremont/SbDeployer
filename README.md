@@ -7,25 +7,22 @@ Application Java décomposée en 2 permettant de livrer / relivrer des micro ser
 ## Fonctionnalités
 * Définition des microservices à déployer dans MongoDb
 * Cibler le déploiement d'un microservice sur un instant précise
+* Accès sécurisé (BASIC) au manager
 
 ## Pré-requis
 * MongoDb
 * Une instance pour héberger le micro service "manager"
 * Des instances pour héberger les micro services "node"
 
-## Installation
-* Le manager
-```bash
-$ todo...
-```
-* Un node
-```bash
-$ todo...
-```
 
 ## Manager
+* Installation
+```bash
+$ todo...
+```
 * Configuration
 todo...
-* 
+* API Rest
+todo....
 
   
