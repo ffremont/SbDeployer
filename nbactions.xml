@@ -8,7 +8,7 @@
                 <goal>release:prepare</goal>
                 <goal>release:perform</goal>
                 <goal>-Dusername=ffremont</goal>
-                <goal>-Dpassword=335335</goal>
+                <goal>-Dpassword=doudou49</goal>
                 <goal>-X</goal>
             </goals>
         </action>
