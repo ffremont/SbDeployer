@@ -23,7 +23,17 @@
         
         <jersey.version>2.16</jersey.version>
     </properties>
-    
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>com.github.fakemongo</groupId>
+                <artifactId>fongo</artifactId>
+                <version>1.6.1</version>
+                <scope>test</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>    
     <build>
         <pluginManagement>
             <plugins>

@@ -2,5 +2,5 @@
 <configuration>
     <include resource="org/springframework/boot/logging/logback/base.xml"/>
     
-    <logger name="fr.ffremont" level="DEBUG"/>
+    <logger name="com.github.ffremont" level="DEBUG"/>
 </configuration>

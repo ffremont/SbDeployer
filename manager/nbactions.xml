@@ -35,7 +35,7 @@
                 <goal>org.codehaus.mojo:exec-maven-plugin:1.2.1:exec</goal>
             </goals>
             <properties>
-                <exec.args>-Dspring.profiles.active=dev -Dspring.config.location=file:src/main/resources/ -classpath %classpath fr.ffremont.microservices.sbmanager.SbManagerWorldApp</exec.args>
+                <exec.args>-Dspring.profiles.active=dev -Dspring.config.location=file:src/main/resources/ -classpath %classpath com.github.ffremont.microservices.sbmanager.SbManagerWorldApp</exec.args>
                 <exec.executable>java</exec.executable>
                 <exec.workingdir>/home/florent/NetBeansProjects/springBoot/sbManager</exec.workingdir>
             </properties>
