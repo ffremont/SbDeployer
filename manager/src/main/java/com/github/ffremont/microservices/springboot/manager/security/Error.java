@@ -15,6 +15,9 @@ public class Error {
     private int code;
     private String label;
 
+    public Error() {
+    }
+
     public Error(int code, String label) {
         this.code = code;
         this.label = label;

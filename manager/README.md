@@ -5,7 +5,7 @@
                 MicroService
 GET             :   /clusters/{clName}/nodes/{nodeName}/ms
 GET             :   /clusters/{clName}/nodes/{nodeName}/ms/{appName}
-POST            :   /clusters/{clName}/nodes/{nodeName}/ms/{appName}
+POST            :   /clusters/{clName}/nodes/{nodeName}/ms/
 PUT             :   /clusters/{clName}/nodes/{nodeName}/ms/{appName}
 DEL             :   /clusters/{clName}/nodes/{nodeName}/ms/{appName}
 

@@ -26,18 +26,23 @@ import org.springframework.stereotype.Component;
 @Produces(ClustersResource.TYPE_MIME)
 public class ClustersResource {
     
+    /**
+     * Accept ou ContentType
+     */
     public final static String TYPE_MIME = "application/vnd.cluster+json";
     
+    /**
+     * Chemin URL
+     */
     public final static String PATH = "clusters";
     
     @Autowired
-    private MicroServiceResource msR;
+    private NodeResource nodeResource;
     
-    @Path("/{clusterName}/"+MicroServiceResource.PATH)
-    @RolesAllowed({Roles.ADMIN, Roles.GUEST, Roles.USER})
-    public MicroServiceResource sousAppResource(@PathParam("clusterName") String clusterName){
-        msR.setCluster(clusterName);
+    @Path("/{clusterName}/"+NodeResource.PATH)
+    public NodeResource getNodes(@PathParam("clusterName") String clusterName){
+        nodeResource.setCluster(clusterName);
         
-        return msR;
+        return nodeResource;
     }
 }

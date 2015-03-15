@@ -36,16 +36,16 @@ public class MicroServiceResourceTest {
     @Value("${local.server.port}")
     int port;
     
-    RestTemplate restTemplate = new TestRestTemplate("testeur", "secret");
+    RestTemplate restTemplate = new TestRestTemplate("admin", "secret");
     
     @Test
     public void helloTest(){
-        String url = "http://localhost:"+port+"/"+JerseyConfig.APP_PATH+"/"+ClustersResource.PATH+"/testt/"+MicroServiceResource.PATH;
+        String url = "http://localhost:"+port+"/"+JerseyConfig.APP_PATH+"/"+ClustersResource.PATH+"/myCluster/"+NodeResource.PATH+"/myNode/"+MicroServiceResource.PATH+"/ping";
         
         LOG.debug("MicroServiceResource.hello : "+url);
-        ResponseEntity<String> response = this.restTemplate.getForEntity("http://localhost:"+port+"/"+JerseyConfig.APP_PATH+"/"+ClustersResource.PATH+"/testt/"+MicroServiceResource.PATH, String.class);
+        ResponseEntity<String> response = this.restTemplate.getForEntity(url, String.class);
         
-        assertEquals("Hello testt", response.getBody());
+        assertEquals("Hello myCluster:myNode", response.getBody());
         assertTrue(response.getHeaders().getContentType().toString().startsWith(MicroServiceResource.TYPE_MIME));
     }
     
