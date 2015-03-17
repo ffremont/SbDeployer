@@ -5,6 +5,8 @@
  */
 package com.github.ffremont.microservices.springboot.manager.models;
 
+import javax.validation.constraints.NotNull;
+import org.hibernate.validator.constraints.Length;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.CompoundIndex;
 import org.springframework.data.mongodb.core.index.CompoundIndexes;
@@ -23,10 +25,26 @@ public class Property {
     @Id
     private String id;
     
+    @NotNull
+    @Length(max = 128)
     private String name;
+    
+    @Length(max = 128)
     private String namespace;
+    
+    @NotNull
+    @Length(max = 256)
     private String value;
 
+    public Property() {
+    }
+
+    public Property(String name, String namespace, String value) {
+        this.name = name;
+        this.namespace = namespace;
+        this.value = value;
+    }
+    
     public String getId() {
         return id;
     }
