@@ -11,15 +11,13 @@ import org.hibernate.validator.constraints.Length;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.CompoundIndex;
 import org.springframework.data.mongodb.core.index.CompoundIndexes;
+import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 /**
  *
  * @author florent
  */
-@CompoundIndexes({
-    @CompoundIndex(name = "name.cluster", def = "{'name' : 1, 'cluster' : 1}", unique = true)
-})
 @Document(collection = "microservices")
 public class MicroService {
     @Id
@@ -27,6 +25,7 @@ public class MicroService {
     
     @NotNull
     @Length(max = 256)
+    @Indexed(unique = true)
     private String name;
     
     @NotNull
@@ -37,6 +36,7 @@ public class MicroService {
     private String url;
     
     @Length(max = 128)
+    @Indexed(unique = true)
     private String hashLaunch;
     
     @NotNull
@@ -54,6 +54,16 @@ public class MicroService {
     private String nsProperties;
     //private JavaConfig javaConf;
 
+    public MicroService() {
+    }
+
+    public MicroService(String cluster, String node, String name, String gav) {
+        this.name = name;
+        this.gav = gav;
+        this.cluster = cluster;
+        this.node = node;
+    }
+    
     public String getId() {
         return id;
     }

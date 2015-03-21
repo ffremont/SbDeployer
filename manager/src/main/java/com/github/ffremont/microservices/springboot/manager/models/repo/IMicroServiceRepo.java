@@ -6,6 +6,8 @@
 package com.github.ffremont.microservices.springboot.manager.models.repo;
 
 import com.github.ffremont.microservices.springboot.manager.models.MicroService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.repository.PagingAndSortingRepository;
 
 /**
@@ -13,5 +15,7 @@ import org.springframework.data.repository.PagingAndSortingRepository;
  * @author florent
  */
 public interface IMicroServiceRepo extends PagingAndSortingRepository<MicroService, String>{
-    public MicroService findOneByClusterAndName(String cluster, String name);
+    public MicroService findOneByName(String name);
+    
+    public Page<MicroService> findByClusterAndNode(String cluster, String node, Pageable pageable);
 }

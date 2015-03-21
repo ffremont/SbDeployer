@@ -6,8 +6,12 @@
 package com.github.ffremont.microservices.springboot.manager.resources;
 
 import com.github.ffremont.microservices.springboot.manager.models.MicroService;
+import com.github.ffremont.microservices.springboot.manager.models.repo.IMicroServiceRepo;
 import com.github.ffremont.microservices.springboot.manager.security.Roles;
+import java.util.ArrayList;
+import java.util.List;
 import javax.annotation.security.RolesAllowed;
+import javax.validation.constraints.NotNull;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -16,10 +20,17 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
+import javax.ws.rs.core.UriInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
 
 /**
@@ -38,7 +49,13 @@ public class MicroServiceResource {
     public final static String PATH = "microservices";
     
     public final static String TYPE_MIME = "application/vnd.microservice+json";
+    
+    public final static int MAX_PAGE_MS = 30;
 
+
+    @Autowired
+    private IMicroServiceRepo microServiceRepo;
+    
     private String cluster;
     private String node;
     
@@ -47,16 +64,24 @@ public class MicroServiceResource {
     public Response hello(){
         return Response.ok("Hello "+this.cluster+":"+this.node).build();
     }
-    
+
     /**
      * Liste des micro services pour un cluster:name
      * @return 
      */
     @GET
+    @RolesAllowed({Roles.ADMIN, Roles.USER})
     public Response microservices(){
-        return Response.ok().build();
+        Page<MicroService> microservices = microServiceRepo.findByClusterAndNode(this.cluster, this.node, new PageRequest(0, MAX_PAGE_MS));
+        
+        List<MicroService> list = new ArrayList<>();
+        microservices.forEach(ms -> {
+            list.add(ms);
+        });
+        
+        return Response.ok(list).build();
     }
-
+    
     /**
      * Retourne un MS à partir de son nom
      * @param msName
@@ -66,7 +91,12 @@ public class MicroServiceResource {
     @Path("{msName}")
     @RolesAllowed({Roles.ADMIN, Roles.USER})
     public Response microserviceByName(@PathParam("msName") String msName){
-        throw new UnsupportedOperationException("microserviceByName : "+msName);
+        MicroService ms = microServiceRepo.findOneByName(msName);
+        if(ms == null){
+            throw new WebApplicationException("Microservice not found", Status.NOT_FOUND);
+        }
+        
+        return Response.ok(ms).build();
     }
     
     /**

@@ -87,6 +87,7 @@ public class PropertiesResourceTest {
         assertEquals("myValue", response.getBody().getValue());
         assertEquals("fr", response.getBody().getNamespace());
     }
+    
 
     @Test
     public void getPropertyNotFOundTest() {
@@ -110,6 +111,19 @@ public class PropertiesResourceTest {
 
         assertEquals(response.getStatusCode(), HttpStatus.CREATED);
         assertEquals(uri, response.getHeaders().getLocation().toString());
+    }
+    
+    @Test
+    public void addPropertyInvalidTest() {
+        Property prop = new Property(null, null, null);
+        String uri = this.getUrlResource("fr", "toto");
+        
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.parseMediaType(PropertiesResource.TYPE_MIME));
+        HttpEntity<Property> entity = new HttpEntity<>( prop, headers);
+        ResponseEntity<String> response = this.restTemplate.exchange(uri, HttpMethod.POST, entity, String.class);
+
+        assertEquals(response.getStatusCode(), HttpStatus.BAD_REQUEST);
     }
     
     @Test
