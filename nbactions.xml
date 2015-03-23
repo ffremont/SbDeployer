@@ -7,8 +7,8 @@
                 <goal>release:clean</goal>
                 <goal>release:prepare</goal>
                 <goal>release:perform</goal>
-                <goal>-Dusername=ffremont</goal>
-                <goal>-Dpassword=</goal>
+                <!--goal>-Dusername=ffremont</goal>
+                <goal>-Dpassword=</goal-->
                 <goal>-X</goal>
             </goals>
         </action>
@@ -23,5 +23,13 @@
             <activatedProfiles>
                 <activatedProfile>integrationContinue</activatedProfile>
             </activatedProfiles>
+        </action>
+        <action>
+            <actionName>CUSTOM-RELEASE CLEAN</actionName>
+            <displayName>RELEASE CLEAN</displayName>
+            <goals>
+                <goal>release:clean</goal>
+                <goal>-X</goal>
+            </goals>
         </action>
     </actions>
