@@ -8,6 +8,7 @@ package com.github.ffremont.microservices.springboot.manager.resources;
 import com.github.ffremont.microservices.springboot.manager.JerseyConfig;
 import com.github.ffremont.microservices.springboot.manager.SbManagerWorldApp;
 import com.github.ffremont.microservices.springboot.manager.stores.ValidMicroServiceStore;
+import com.github.ffremont.microservices.springboot.manager.stores.ValidPropertiesStore;
 import com.github.ffremont.microservices.springboot.pojo.MicroServiceRest;
 import java.util.Arrays;
 import org.junit.After;
@@ -95,5 +96,21 @@ public class MicroServiceResourceTest {
         
         assertNotNull(ms);
         assertEquals("myCluster" , ms.getCluster());
+    }
+    
+    @Test
+    public void msPropsTest() {
+        ValidMicroServiceStore.provide(mongoTemplate);
+        ValidPropertiesStore.provide(mongoTemplate);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setAccept(Arrays.asList(MediaType.parseMediaType(MediaType.TEXT_PLAIN.toString())));
+        HttpEntity<String> entity = new HttpEntity<>(headers);
+        ResponseEntity<String> response = this.restTemplate.exchange(this.getUrlResource("myCluster", "myNodeA", "toto/properties"), HttpMethod.GET, entity, String.class);
+        
+        assertTrue(response.getHeaders().getContentType().toString().startsWith(MediaType.TEXT_PLAIN.toString()));
+        assertFalse(response.getBody().isEmpty());
+        
+        // @todo tester contenu du properties
     }
 }

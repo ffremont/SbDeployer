@@ -16,6 +16,7 @@ public class ValidPropertiesStore {
     public static void provide(MongoTemplate mongoTemplate){
         mongoTemplate.insert(new Property("toto", "fr", "myValue"));
         mongoTemplate.insert(new Property("totoBis", "fr.ffremont", "myValueBis"));
+        mongoTemplate.insert(new Property("totoBisToto", "fr.ffremont.toto", "myValueBis"));
         
         mongoTemplate.insert(new Property("totoCom", "com.ffremont", "myValueCom"));
     }

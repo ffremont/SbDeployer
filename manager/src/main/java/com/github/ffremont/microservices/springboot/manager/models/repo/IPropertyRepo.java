@@ -6,6 +6,7 @@
 package com.github.ffremont.microservices.springboot.manager.models.repo;
 
 import com.github.ffremont.microservices.springboot.manager.models.Property;
+import java.util.List;
 import org.springframework.data.repository.PagingAndSortingRepository;
 
 /**
@@ -15,5 +16,5 @@ import org.springframework.data.repository.PagingAndSortingRepository;
 public interface IPropertyRepo extends PagingAndSortingRepository<Property, String>{
     public Property findOneByNamespaceAndName(String namespace, String name);
     
-    public Property findByNamespaceRegex(String namespace);
+    public List<Property> findByNamespaceRegex(String namespace);
 }

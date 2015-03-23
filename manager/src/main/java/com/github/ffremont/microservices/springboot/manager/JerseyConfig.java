@@ -5,6 +5,8 @@
  */
 package com.github.ffremont.microservices.springboot.manager;
 
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import javax.ws.rs.ApplicationPath;
 import org.glassfish.jersey.jackson.JacksonFeature;
 import org.glassfish.jersey.server.ResourceConfig;
@@ -21,6 +23,8 @@ import org.springframework.stereotype.Component;
 public class JerseyConfig extends ResourceConfig {
     
     public final static String APP_PATH = "manager";
+    
+    public final static Charset APP_CHARSET = StandardCharsets.UTF_8;
 
     public JerseyConfig() {
         packages("com.github.ffremont.microservices.springboot.manager.resources");

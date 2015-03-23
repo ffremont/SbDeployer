@@ -5,13 +5,19 @@
  */
 package com.github.ffremont.microservices.springboot.manager.resources;
 
+import com.github.ffremont.microservices.springboot.manager.JerseyConfig;
 import com.github.ffremont.microservices.springboot.manager.mappers.MicroServiceMapper;
 import com.github.ffremont.microservices.springboot.manager.models.MicroService;
+import com.github.ffremont.microservices.springboot.manager.models.Property;
 import com.github.ffremont.microservices.springboot.manager.models.repo.IMicroServiceRepo;
+import com.github.ffremont.microservices.springboot.manager.models.repo.IPropertyRepo;
 import com.github.ffremont.microservices.springboot.manager.security.Roles;
 import com.github.ffremont.microservices.springboot.pojo.MicroServiceRest;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 import javax.annotation.security.RolesAllowed;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -22,6 +28,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import org.slf4j.Logger;
@@ -51,9 +58,11 @@ public class MicroServiceResource {
     
     public final static int MAX_PAGE_MS = 30;
 
-
     @Autowired
     private IMicroServiceRepo microServiceRepo;
+
+    @Autowired
+    private IPropertyRepo propRepo;
     
     private String cluster;
     private String node;
@@ -109,12 +118,27 @@ public class MicroServiceResource {
      * Récupération du contenu fichier de propriété
      * @param msName
      * @return 
+     * @throws java.io.IOException 
      */
     @GET
     @Path("{msName}/properties")
     @RolesAllowed({Roles.ADMIN, Roles.USER})
-    public Response microservicePropByName(@PathParam("msName") String msName){
-        throw new UnsupportedOperationException("microservicePropByName : "+msName);
+    @Consumes(MediaType.TEXT_PLAIN)
+    @Produces(MediaType.TEXT_PLAIN)
+    public Response microservicePropByName(@PathParam("msName") String msName) throws IOException{
+        MicroService ms = microServiceRepo.findOneByName(msName);
+
+        List<Property> props = propRepo.findByNamespaceRegex("/^"+ms.getNsProperties()+"/");
+        
+        Properties p = new Properties();
+        props.forEach(prop ->{
+            p.put(prop.getName(), prop.getValue());
+        });
+        
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        p.store(baos, "");
+        
+        return Response.ok( baos.toString(JerseyConfig.APP_CHARSET.toString()) ).build();
     }
     
     /**
