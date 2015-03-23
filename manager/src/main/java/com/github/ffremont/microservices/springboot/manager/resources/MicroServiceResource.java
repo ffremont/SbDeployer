@@ -94,7 +94,7 @@ public class MicroServiceResource {
     @Path("{msName}")
     @RolesAllowed({Roles.ADMIN, Roles.USER})
     public Response microserviceByName(@PathParam("msName") String msName){
-        MicroService ms = microServiceRepo.findOneByName(msName);
+        MicroService ms = microServiceRepo.findOneByClusterAndNodeAndName(this.cluster, this.node, msName);
         if(ms == null){
             throw new WebApplicationException("Microservice not found", Status.NOT_FOUND);
         }
@@ -126,9 +126,9 @@ public class MicroServiceResource {
     @Consumes(MediaType.TEXT_PLAIN)
     @Produces(MediaType.TEXT_PLAIN)
     public Response microservicePropByName(@PathParam("msName") String msName) throws IOException{
-        MicroService ms = microServiceRepo.findOneByName(msName);
+        MicroService ms = microServiceRepo.findOneByClusterAndNodeAndName(this.cluster, this.node, msName);
 
-        List<Property> props = propRepo.findByNamespaceRegex("/^"+ms.getNsProperties()+"/");
+        List<Property> props = propRepo.findByNamespaceRegex("^"+ms.getNsProperties()+"");
         
         Properties p = new Properties();
         props.forEach(prop ->{

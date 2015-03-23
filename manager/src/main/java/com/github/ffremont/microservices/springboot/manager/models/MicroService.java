@@ -8,6 +8,8 @@ package com.github.ffremont.microservices.springboot.manager.models;
 import java.util.List;
 import java.util.UUID;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.CompoundIndex;
+import org.springframework.data.mongodb.core.index.CompoundIndexes;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -15,12 +17,14 @@ import org.springframework.data.mongodb.core.mapping.Document;
  *
  * @author florent
  */
+@CompoundIndexes({
+    @CompoundIndex(name = "cluster.node.name", def = "{'cluster' : 1, 'node' : 1, 'name' : 1}", unique = true)
+})
 @Document(collection = "microservices")
 public class MicroService {
     @Id
     private String id;
     
-    @Indexed(unique = true)
     private String name;
     
     private String gav;

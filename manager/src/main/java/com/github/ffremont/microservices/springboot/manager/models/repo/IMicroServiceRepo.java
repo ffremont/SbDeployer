@@ -15,7 +15,7 @@ import org.springframework.data.repository.PagingAndSortingRepository;
  * @author florent
  */
 public interface IMicroServiceRepo extends PagingAndSortingRepository<MicroService, String>{
-    public MicroService findOneByName(String name);
+    public MicroService findOneByClusterAndNodeAndName(String cluster, String node, String name);
     
     public Page<MicroService> findByClusterAndNode(String cluster, String node, Pageable pageable);
 }

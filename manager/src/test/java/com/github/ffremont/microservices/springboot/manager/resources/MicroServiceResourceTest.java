@@ -111,6 +111,7 @@ public class MicroServiceResourceTest {
         assertTrue(response.getHeaders().getContentType().toString().startsWith(MediaType.TEXT_PLAIN.toString()));
         assertFalse(response.getBody().isEmpty());
         
-        // @todo tester contenu du properties
+        assertTrue(response.getBody().contains("totoBisToto=")); // fr.ffremont.toto
+        assertTrue(response.getBody().contains("totoBis=")); // fr.ffremont
     }
 }
