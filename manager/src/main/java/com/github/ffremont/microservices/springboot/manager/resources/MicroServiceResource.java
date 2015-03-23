@@ -5,13 +5,14 @@
  */
 package com.github.ffremont.microservices.springboot.manager.resources;
 
+import com.github.ffremont.microservices.springboot.manager.mappers.MicroServiceMapper;
 import com.github.ffremont.microservices.springboot.manager.models.MicroService;
 import com.github.ffremont.microservices.springboot.manager.models.repo.IMicroServiceRepo;
 import com.github.ffremont.microservices.springboot.manager.security.Roles;
+import com.github.ffremont.microservices.springboot.pojo.MicroServiceRest;
 import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.security.RolesAllowed;
-import javax.validation.constraints.NotNull;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -21,10 +22,8 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
-import javax.ws.rs.core.UriInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -58,12 +57,6 @@ public class MicroServiceResource {
     
     private String cluster;
     private String node;
-    
-    @GET    
-    @Path("ping")
-    public Response hello(){
-        return Response.ok("Hello "+this.cluster+":"+this.node).build();
-    }
 
     /**
      * Liste des micro services pour un cluster:name
@@ -74,9 +67,10 @@ public class MicroServiceResource {
     public Response microservices(){
         Page<MicroService> microservices = microServiceRepo.findByClusterAndNode(this.cluster, this.node, new PageRequest(0, MAX_PAGE_MS));
         
-        List<MicroService> list = new ArrayList<>();
+        List<MicroServiceRest> list = new ArrayList<>();
+        MicroServiceMapper msMapper = new MicroServiceMapper();
         microservices.forEach(ms -> {
-            list.add(ms);
+            list.add(msMapper.apply(ms));
         });
         
         return Response.ok(list).build();
@@ -96,7 +90,7 @@ public class MicroServiceResource {
             throw new WebApplicationException("Microservice not found", Status.NOT_FOUND);
         }
         
-        return Response.ok(ms).build();
+        return Response.ok((new MicroServiceMapper()).apply(ms)).build();
     }
     
     /**

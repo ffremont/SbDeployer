@@ -5,10 +5,7 @@
  */
 package com.github.ffremont.microservices.springboot.manager.resources;
 
-import com.github.ffremont.microservices.springboot.manager.security.Roles;
-import javax.annotation.security.RolesAllowed;
 import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;

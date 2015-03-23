@@ -7,15 +7,12 @@ package com.github.ffremont.microservices.springboot.manager.resources;
 
 import com.github.ffremont.microservices.springboot.manager.JerseyConfig;
 import com.github.ffremont.microservices.springboot.manager.SbManagerWorldApp;
-import com.github.ffremont.microservices.springboot.manager.models.MicroService;
-import com.github.ffremont.microservices.springboot.manager.models.Property;
 import com.github.ffremont.microservices.springboot.manager.stores.ValidMicroServiceStore;
-import java.math.BigInteger;
+import com.github.ffremont.microservices.springboot.pojo.MicroServiceRest;
 import java.util.Arrays;
 import org.junit.After;
 import org.junit.Test;
 import static org.junit.Assert.*;
-import org.junit.Ignore;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -65,31 +62,20 @@ public class MicroServiceResourceTest {
     }
     
     @Test
-    public void helloTest(){
-        String url = this.getUrlResource("myCluster", "myNode", "ping");
-        
-        LOG.debug("MicroServiceResource.hello : "+url);
-        ResponseEntity<String> response = this.restTemplate.getForEntity(url, String.class);
-        
-        assertEquals("Hello myCluster:myNode", response.getBody());
-        assertTrue(response.getHeaders().getContentType().toString().startsWith(MicroServiceResource.TYPE_MIME));
-    }
-    
-    @Test
     public void msListOkTest() {
         ValidMicroServiceStore.provide(mongoTemplate);
 
         HttpHeaders headers = new HttpHeaders();
         headers.setAccept(Arrays.asList(MediaType.parseMediaType(MicroServiceResource.TYPE_MIME)));
-        HttpEntity<MicroService[]> entity = new HttpEntity<>(headers);
-        ResponseEntity<MicroService[]> response = this.restTemplate.exchange(this.getUrlResource("myCluster", "myNodeA", ""), HttpMethod.GET, entity, MicroService[].class);
+        HttpEntity<MicroServiceRest[]> entity = new HttpEntity<>(headers);
+        ResponseEntity<MicroServiceRest[]> response = this.restTemplate.exchange(this.getUrlResource("myCluster", "myNodeA", ""), HttpMethod.GET, entity, MicroServiceRest[].class);
         
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertTrue(response.getHeaders().getContentType().toString().startsWith(MicroServiceResource.TYPE_MIME));
        
         assertEquals(1, response.getBody().length);
         
-        MicroService ms = response.getBody()[0];
+        MicroServiceRest ms = response.getBody()[0];
         assertEquals("fr.ffremont:myArtifact:0.0.1", ms.getGav());
         assertEquals("toto", ms.getName());
     }
@@ -100,12 +86,12 @@ public class MicroServiceResourceTest {
 
         HttpHeaders headers = new HttpHeaders();
         headers.setAccept(Arrays.asList(MediaType.parseMediaType(MicroServiceResource.TYPE_MIME)));
-        HttpEntity<MicroService> entity = new HttpEntity<>(headers);
-        ResponseEntity<MicroService> response = this.restTemplate.exchange(this.getUrlResource("myCluster", "myNodeA", "toto"), HttpMethod.GET, entity, MicroService.class);
+        HttpEntity<MicroServiceRest> entity = new HttpEntity<>(headers);
+        ResponseEntity<MicroServiceRest> response = this.restTemplate.exchange(this.getUrlResource("myCluster", "myNodeA", "toto"), HttpMethod.GET, entity, MicroServiceRest.class);
         
         assertTrue(response.getHeaders().getContentType().toString().startsWith(MicroServiceResource.TYPE_MIME));
         assertEquals(response.getStatusCode(), HttpStatus.OK);
-        MicroService ms = response.getBody();
+        MicroServiceRest ms = response.getBody();
         
         assertNotNull(ms);
         assertEquals("myCluster" , ms.getCluster());

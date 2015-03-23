@@ -5,9 +5,11 @@
  */
 package com.github.ffremont.microservices.springboot.manager.resources;
 
+import com.github.ffremont.microservices.springboot.manager.mappers.PropertyMapper;
 import com.github.ffremont.microservices.springboot.manager.models.Property;
 import com.github.ffremont.microservices.springboot.manager.models.repo.IPropertyRepo;
 import com.github.ffremont.microservices.springboot.manager.security.Roles;
+import com.github.ffremont.microservices.springboot.pojo.PropertyRest;
 import javax.annotation.security.RolesAllowed;
 import javax.validation.Valid;
 import javax.ws.rs.Consumes;
@@ -61,14 +63,14 @@ public class PropertiesResource {
         if (prop == null) {
             throw new WebApplicationException("Property not found", Status.NOT_FOUND);
         } else {
-            return Response.ok(prop).build();
+            return Response.ok((new PropertyMapper()).apply(prop)).build();
         }
     }
 
     @POST
     @Path("{namespace}/{name}")
     @RolesAllowed({Roles.ADMIN})
-    public Response addProperty(@PathParam("namespace") String namespace, @PathParam("name") String name, @Valid Property prop) {
+    public Response addProperty(@PathParam("namespace") String namespace, @PathParam("name") String name, @Valid PropertyRest prop) {
         try {
             this.propertyRepo.save(new Property(name, namespace, prop.getValue()));
         } catch (DuplicateKeyException dke) {

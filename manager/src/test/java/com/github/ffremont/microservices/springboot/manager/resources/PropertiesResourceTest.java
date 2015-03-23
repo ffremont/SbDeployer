@@ -11,6 +11,7 @@ import com.github.ffremont.microservices.springboot.manager.SbManagerWorldApp;
 import com.github.ffremont.microservices.springboot.manager.models.Property;
 import com.github.ffremont.microservices.springboot.manager.models.repo.IPropertyRepo;
 import com.github.ffremont.microservices.springboot.manager.stores.ValidPropertiesStore;
+import com.github.ffremont.microservices.springboot.pojo.PropertyRest;
 import java.util.Arrays;
 import org.junit.After;
 import org.junit.Test;
@@ -78,8 +79,8 @@ public class PropertiesResourceTest {
 
         HttpHeaders headers = new HttpHeaders();
         headers.setAccept(Arrays.asList(MediaType.parseMediaType(PropertiesResource.TYPE_MIME)));
-        HttpEntity<Property> entity = new HttpEntity<>(headers);
-        ResponseEntity<Property> response = this.restTemplate.exchange(this.getUrlResource("fr", "toto"), HttpMethod.GET, entity, Property.class);
+        HttpEntity<PropertyRest> entity = new HttpEntity<>(headers);
+        ResponseEntity<PropertyRest> response = this.restTemplate.exchange(this.getUrlResource("fr", "toto"), HttpMethod.GET, entity, PropertyRest.class);
 
         assertTrue(response.getHeaders().getContentType().toString().startsWith(PropertiesResource.TYPE_MIME));
         assertEquals(response.getStatusCode(), HttpStatus.OK);
@@ -93,7 +94,7 @@ public class PropertiesResourceTest {
     public void getPropertyNotFOundTest() {
         HttpHeaders headers = new HttpHeaders();
         headers.setAccept(Arrays.asList(MediaType.parseMediaType(PropertiesResource.TYPE_MIME)));
-        HttpEntity<Property> entity = new HttpEntity<>(headers);
+        HttpEntity<PropertyRest> entity = new HttpEntity<>(headers);
         ResponseEntity<String> response = this.restTemplate.exchange(this.getUrlResource("fr", "toto"), HttpMethod.GET, entity, String.class);
 
         assertEquals(response.getStatusCode(), HttpStatus.NOT_FOUND);
@@ -101,12 +102,12 @@ public class PropertiesResourceTest {
     
     @Test
     public void addPropertyTest() {
-        Property prop = new Property("myName", "myNameSpace", "myValue");
+        PropertyRest prop = new PropertyRest("myName", "myNameSpace", "myValue");
         String uri = this.getUrlResource("fr", "toto");
         
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.parseMediaType(PropertiesResource.TYPE_MIME));
-        HttpEntity<Property> entity = new HttpEntity<>( prop, headers);
+        HttpEntity<PropertyRest> entity = new HttpEntity<>( prop, headers);
         ResponseEntity<String> response = this.restTemplate.exchange(uri, HttpMethod.POST, entity, String.class);
 
         assertEquals(response.getStatusCode(), HttpStatus.CREATED);
@@ -115,12 +116,12 @@ public class PropertiesResourceTest {
     
     @Test
     public void addPropertyInvalidTest() {
-        Property prop = new Property(null, null, null);
+        PropertyRest prop = new PropertyRest(null, null, null);
         String uri = this.getUrlResource("fr", "toto");
         
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.parseMediaType(PropertiesResource.TYPE_MIME));
-        HttpEntity<Property> entity = new HttpEntity<>( prop, headers);
+        HttpEntity<PropertyRest> entity = new HttpEntity<>( prop, headers);
         ResponseEntity<String> response = this.restTemplate.exchange(uri, HttpMethod.POST, entity, String.class);
 
         assertEquals(response.getStatusCode(), HttpStatus.BAD_REQUEST);
@@ -128,12 +129,12 @@ public class PropertiesResourceTest {
     
     @Test
     public void addPropertyKoDuplicateTest() {
-        Property prop = new Property("myName", "myNameSpace", "myValue");
+        PropertyRest prop = new PropertyRest("myName", "myNameSpace", "myValue");
         String uri = this.getUrlResource("fr", "toto");
         
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.parseMediaType(PropertiesResource.TYPE_MIME));
-        HttpEntity<Property> entity = new HttpEntity<>( prop, headers);
+        HttpEntity<PropertyRest> entity = new HttpEntity<>( prop, headers);
         
         ResponseEntity<String> response = this.restTemplate.exchange(uri, HttpMethod.POST, entity, String.class);
         assertEquals(response.getStatusCode(), HttpStatus.CREATED);

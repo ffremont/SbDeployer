@@ -14,6 +14,12 @@
     
     <dependencies>
         <dependency>
+            <groupId>com.github.ffremont.microservices.springboot</groupId>
+            <artifactId>pojo</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        
+        <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
             <exclusions>
@@ -65,11 +71,12 @@
             <artifactId>spring-data-mongodb</artifactId>
             <type>jar</type>
         </dependency>
-        <dependency>
+        <!--dependency>
             <groupId>org.glassfish.jersey.core</groupId>
             <artifactId>jersey-server</artifactId>
             <type>jar</type>
-        </dependency>
+        </dependency-->
+        
     </dependencies>
     <build>
         <resources>

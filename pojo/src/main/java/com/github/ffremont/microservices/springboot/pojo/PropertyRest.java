@@ -3,36 +3,40 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.github.ffremont.microservices.springboot.manager.models;
+package com.github.ffremont.microservices.springboot.pojo;
 
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.index.CompoundIndex;
-import org.springframework.data.mongodb.core.index.CompoundIndexes;
-import org.springframework.data.mongodb.core.mapping.Document;
+import javax.validation.constraints.NotNull;
+import org.hibernate.validator.constraints.Length;
 
 /**
  *
  * @author florent
  */
-@CompoundIndexes({
-    @CompoundIndex(name = "namespace.name", def = "{'namespace' : 1, 'name' : 1}", unique = true)
-})
-@Document(collection = "properties")
-public class Property {
-    
-    @Id
+public class PropertyRest {
     private String id;
     
+    @NotNull
+    @Length(max = 128)
     private String name;
     
+    @Length(max = 128)
     private String namespace;
     
+    @NotNull
+    @Length(max = 256)
     private String value;
 
-    public Property() {
+    public PropertyRest() {
     }
 
-    public Property(String name, String namespace, String value) {
+    public PropertyRest(String name, String namespace, String value) {
+        this.name = name;
+        this.namespace = namespace;
+        this.value = value;
+    }
+
+    public PropertyRest(String id, String name, String namespace, String value) {
+        this.id = id;
         this.name = name;
         this.namespace = namespace;
         this.value = value;
@@ -69,4 +73,6 @@ public class Property {
     public void setValue(String value) {
         this.value = value;
     }
+    
+    
 }

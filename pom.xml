@@ -10,6 +10,7 @@
     <modules>
         <module>manager</module>
         <module>node</module>
+        <module>pojo</module>
     </modules>
     
     <groupId>com.github.ffremont.microservices.springboot</groupId>

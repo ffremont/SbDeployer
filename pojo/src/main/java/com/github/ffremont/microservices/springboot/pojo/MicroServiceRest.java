@@ -3,48 +3,55 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.github.ffremont.microservices.springboot.manager.models;
+package com.github.ffremont.microservices.springboot.pojo;
 
 import java.util.List;
-import java.util.UUID;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.index.Indexed;
-import org.springframework.data.mongodb.core.mapping.Document;
+import javax.validation.constraints.NotNull;
+import org.hibernate.validator.constraints.Length;
 
 /**
  *
  * @author florent
  */
-@Document(collection = "microservices")
-public class MicroService {
-    @Id
+public class MicroServiceRest {
+    
     private String id;
     
-    @Indexed(unique = true)
+    @NotNull
+    @Length(max = 256)
     private String name;
     
+    @NotNull
+    @Length(max = 256)
     private String gav;
     
+    @Length(max = 256)
     private String url;
     
+    @Length(max = 128)
     private String version;
     
+    @NotNull
+    @Length(max = 128)
     private String cluster;
     
+    @NotNull
+    @Length(max = 128)
     private String node;
     
+    @Length(max = 20)
     private List<String> properties;
     
+    @Length(max = 128)
     private String nsProperties;
 
-    public MicroService() {
+    public MicroServiceRest() {
     }
 
-    public MicroService(String cluster, String node, String name, String gav) {
+    public MicroServiceRest(String id, String name, String gav) {
+        this.id = id;
         this.name = name;
         this.gav = gav;
-        this.cluster = cluster;
-        this.node = node;
     }
     
     public String getId() {
@@ -54,7 +61,7 @@ public class MicroService {
     public void setId(String id) {
         this.id = id;
     }
-    
+
     public String getName() {
         return name;
     }
@@ -63,14 +70,6 @@ public class MicroService {
         this.name = name;
     }
 
-    public String getNode() {
-        return node;
-    }
-
-    public void setNode(String node) {
-        this.node = node;
-    }
-    
     public String getGav() {
         return gav;
     }
@@ -94,13 +93,21 @@ public class MicroService {
     public void setVersion(String version) {
         this.version = version;
     }
-    
+
     public String getCluster() {
         return cluster;
     }
 
     public void setCluster(String cluster) {
         this.cluster = cluster;
+    }
+
+    public String getNode() {
+        return node;
+    }
+
+    public void setNode(String node) {
+        this.node = node;
     }
 
     public List<String> getProperties() {
@@ -119,8 +126,5 @@ public class MicroService {
         this.nsProperties = nsProperties;
     }
     
-    public String generateVersion(){
-        return UUID.randomUUID().toString();
-    }
     
 }
