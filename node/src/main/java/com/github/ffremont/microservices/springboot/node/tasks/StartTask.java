@@ -5,6 +5,7 @@
  */
 package com.github.ffremont.microservices.springboot.node.tasks;
 
+import com.github.ffremont.microservices.springboot.pojo.MicroServiceRest;
 import org.springframework.stereotype.Component;
 
 /**
@@ -12,11 +13,18 @@ import org.springframework.stereotype.Component;
  * @author florent
  */
 @Component
-public class StartTask implements IMicroServiceTask{
+public class StartTask implements IMicroServiceTask {
 
+    /**
+     * Syntaxe : java [-options] class [args...] (pour l'exécution d'une classe)
+     * ou java [-options] -jar jarfile [args...] (pour l'exécution d'un fichier
+     * JAR
+     *
+     * @param ms
+     */
     @Override
-    public void run() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public void run(MicroServiceTask task) {
+        ProcessBuilder ps = new ProcessBuilder("java", "-jar");
     }
-    
+
 }

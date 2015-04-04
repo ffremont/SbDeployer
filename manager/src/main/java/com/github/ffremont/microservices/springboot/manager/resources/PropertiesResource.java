@@ -5,6 +5,7 @@
  */
 package com.github.ffremont.microservices.springboot.manager.resources;
 
+import com.github.ffremont.microservices.springboot.manager.annotations.NoCache;
 import com.github.ffremont.microservices.springboot.manager.mappers.PropertyMapper;
 import com.github.ffremont.microservices.springboot.manager.models.Property;
 import com.github.ffremont.microservices.springboot.manager.models.repo.IPropertyRepo;
@@ -57,6 +58,7 @@ public class PropertiesResource {
     @GET
     @Path("{namespace}/{name}")
     @RolesAllowed({Roles.ADMIN, Roles.USER, Roles.GUEST})
+    @NoCache
     public Response getProperty(@PathParam("namespace") String namespace, @PathParam("name") String name) {
         Property prop = propertyRepo.findOneByNamespaceAndName(namespace, name);
 

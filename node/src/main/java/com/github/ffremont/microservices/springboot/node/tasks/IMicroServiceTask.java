@@ -5,10 +5,12 @@
  */
 package com.github.ffremont.microservices.springboot.node.tasks;
 
+import com.github.ffremont.microservices.springboot.node.exceptions.TaskException;
+
 /**
  *
  * @author florent
  */
 public interface IMicroServiceTask {
-    public void run();
+    public void run(MicroServiceTask task) throws TaskException;
 }

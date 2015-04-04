@@ -61,7 +61,7 @@
         </repository>
         <snapshotRepository>
             <id>deployment-oss</id>
-            <name>Internal Releases</name>
+            <name>Internal Snapshot</name>
             <url>https://oss.sonatype.org/content/repositories/snapshots</url>
         </snapshotRepository>
     </distributionManagement>

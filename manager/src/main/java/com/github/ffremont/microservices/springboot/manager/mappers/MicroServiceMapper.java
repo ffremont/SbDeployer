@@ -24,6 +24,7 @@ public class MicroServiceMapper implements Function<MicroService, MicroServiceRe
         msRest.setNsProperties(t.getNsProperties());
         msRest.setUrl(t.getUrl());
         msRest.setVersion(t.getVersion());
+        msRest.setMsEtat(t.getEtat().name());
         
         return msRest;
     }

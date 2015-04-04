@@ -19,7 +19,7 @@ public class ValidMicroServiceStore {
         ms.setNode("myNodeA");
         ms.setGav("fr.ffremont:myArtifact:0.0.1");
         ms.setName("toto");
-        ms.setNsProperties("fr.ffremont");
+        ms.setNsProperties("fr.ffremont.toto");
         
         mongoTemplate.insert(ms);
     }

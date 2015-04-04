@@ -44,7 +44,10 @@ public class MicroServiceRest {
     
     @Length(max = 128)
     private String nsProperties;
-
+    
+    @Length(max = 24)
+    private String msEtat;
+    
     public MicroServiceRest() {
     }
 
@@ -52,6 +55,10 @@ public class MicroServiceRest {
         this.id = id;
         this.name = name;
         this.gav = gav;
+    }
+    
+    public String getIdVersion(){
+        return this.id+this.version;
     }
     
     public String getId() {
@@ -125,6 +132,12 @@ public class MicroServiceRest {
     public void setNsProperties(String nsProperties) {
         this.nsProperties = nsProperties;
     }
-    
-    
+
+    public String getMsEtat() {
+        return msEtat;
+    }
+
+    public void setMsEtat(String msEtat) {
+        this.msEtat = msEtat;
+    }
 }

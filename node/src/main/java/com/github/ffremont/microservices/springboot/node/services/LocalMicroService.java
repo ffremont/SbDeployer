@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.github.ffremont.microservices.springboot.node.process;
+package com.github.ffremont.microservices.springboot.node.services;
 
 /**
  *

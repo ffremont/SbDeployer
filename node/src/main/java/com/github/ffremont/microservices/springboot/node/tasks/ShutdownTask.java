@@ -5,6 +5,7 @@
  */
 package com.github.ffremont.microservices.springboot.node.tasks;
 
+import com.github.ffremont.microservices.springboot.pojo.MicroServiceRest;
 import org.springframework.stereotype.Component;
 
 /**
@@ -15,8 +16,10 @@ import org.springframework.stereotype.Component;
 public class ShutdownTask implements IMicroServiceTask{
 
     @Override
-    public void run() {
+    public void run(MicroServiceTask task) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
+    
+   
     
 }

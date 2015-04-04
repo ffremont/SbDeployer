@@ -6,6 +6,8 @@
 package com.github.ffremont.microservices.springboot.manager.resources;
 
 import com.github.ffremont.microservices.springboot.manager.JerseyConfig;
+import com.github.ffremont.microservices.springboot.manager.annotations.ExpirationCache;
+import com.github.ffremont.microservices.springboot.manager.annotations.NoCache;
 import com.github.ffremont.microservices.springboot.manager.mappers.MicroServiceMapper;
 import com.github.ffremont.microservices.springboot.manager.models.MicroService;
 import com.github.ffremont.microservices.springboot.manager.models.Property;
@@ -28,7 +30,10 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.EntityTag;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Request;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import org.slf4j.Logger;
@@ -49,128 +54,165 @@ import org.springframework.stereotype.Component;
 @Produces(MicroServiceResource.TYPE_MIME)
 @RolesAllowed({Roles.ADMIN, Roles.GUEST, Roles.USER})
 public class MicroServiceResource {
-    
+
     private final static Logger LOG = LoggerFactory.getLogger(MicroServiceResource.class);
-    
+
     public final static String PATH = "microservices";
-    
+
     public final static String TYPE_MIME = "application/vnd.microservice+json";
-    
+
     public final static int MAX_PAGE_MS = 30;
+
+    @Context
+    private Request request;
 
     @Autowired
     private IMicroServiceRepo microServiceRepo;
 
     @Autowired
     private IPropertyRepo propRepo;
-    
+
     private String cluster;
     private String node;
 
     /**
      * Liste des micro services pour un cluster:name
-     * @return 
+     *
+     * @return
      */
     @GET
     @RolesAllowed({Roles.ADMIN, Roles.USER})
-    public Response microservices(){
+    @NoCache
+    public Response microservices() {
         Page<MicroService> microservices = microServiceRepo.findByClusterAndNode(this.cluster, this.node, new PageRequest(0, MAX_PAGE_MS));
-        
+
         List<MicroServiceRest> list = new ArrayList<>();
         MicroServiceMapper msMapper = new MicroServiceMapper();
         microservices.forEach(ms -> {
             list.add(msMapper.apply(ms));
         });
-        
+
         return Response.ok(list).build();
     }
-    
+
     /**
      * Retourne un MS à partir de son nom
+     *
      * @param msName
-     * @return 
+     * @return
      */
     @GET
     @Path("{msName}")
     @RolesAllowed({Roles.ADMIN, Roles.USER})
-    public Response microserviceByName(@PathParam("msName") String msName){
+    @NoCache
+    public Response microserviceByName(@PathParam("msName") String msName) {
         MicroService ms = microServiceRepo.findOneByClusterAndNodeAndName(this.cluster, this.node, msName);
-        if(ms == null){
+        if (ms == null) {
             throw new WebApplicationException("Microservice not found", Status.NOT_FOUND);
         }
-        
+
         return Response.ok((new MicroServiceMapper()).apply(ms)).build();
     }
-    
+
     /**
      * Récupération du binaire
+     *
      * @param msName
-     * @return 
+     * @return
      */
     @GET
     @Path("{msName}/binary")
     @RolesAllowed({Roles.ADMIN, Roles.USER})
-    public Response microserviceBinaryByName(@PathParam("msName") String msName){
-        throw new UnsupportedOperationException("microserviceBinaryByName : "+msName);
+    public Response microserviceBinaryByName(@PathParam("msName") String msName) {
+        // récupération du binaire
+        // http://nexus.local:8081/nexus/service/local/artifact/maven/redirect?r=snapshots&g=fr.ffremont.apps.myTasks&a=desktop-client&v=LATEST&p=zip
+        // inputStream
+
+        String hashOfMyContent = "azerty_v1";
+        EntityTag etag = new EntityTag(hashOfMyContent);
+        Response.ResponseBuilder builder = request.evaluatePreconditions(etag);
+        if (builder == null) {
+            builder = Response.ok("Cache par validation de contenu");
+        }
+        builder.tag(etag);
+
+        //throw new UnsupportedOperationException("microserviceBinaryByName : " + msName);
+        return builder.build();
+
     }
-    
+
     /**
      * Récupération du contenu fichier de propriété
+     *
      * @param msName
-     * @return 
-     * @throws java.io.IOException 
+     * @return
+     * @throws java.io.IOException
      */
     @GET
     @Path("{msName}/properties")
     @RolesAllowed({Roles.ADMIN, Roles.USER})
     @Consumes(MediaType.TEXT_PLAIN)
     @Produces(MediaType.TEXT_PLAIN)
-    public Response microservicePropByName(@PathParam("msName") String msName) throws IOException{
+    @ExpirationCache(maxAge = 86400)
+    public Response microservicePropByName(@PathParam("msName") String msName) throws IOException {
         MicroService ms = microServiceRepo.findOneByClusterAndNodeAndName(this.cluster, this.node, msName);
 
-        List<Property> props = propRepo.findByNamespaceRegex("^"+ms.getNsProperties()+"");
-        
+        List<Property> props = new ArrayList<>();
+        String ns = ms.getNsProperties();
+        String[] nsTab;
+        while (true) {
+            props.addAll(propRepo.findByNamespaceRegex("^" + ns + ""));
+            nsTab = ns.split("\\.");
+
+            if (nsTab.length > 1) {
+                ns = ns.replaceAll("." + nsTab[nsTab.length - 1] + "$", "");
+            } else {
+                break;
+            }
+        }
+
         Properties p = new Properties();
-        props.forEach(prop ->{
+        props.forEach(prop -> {
             p.put(prop.getName(), prop.getValue());
         });
-        
+
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         p.store(baos, "");
-        
-        return Response.ok( baos.toString(JerseyConfig.APP_CHARSET.toString()) ).build();
+
+        return Response.ok(baos.toString(JerseyConfig.APP_CHARSET.toString())).build();
     }
-    
+
     /**
-     * 
+     *
      * @param newMs
-     * @return 
+     * @return
      */
     @POST
     @RolesAllowed({Roles.ADMIN})
-    public Response addMicroservice(MicroService newMs){
+    public Response addMicroservice(MicroService newMs) {
         throw new UnsupportedOperationException("addMicroservice");
     }
-    
+
     /**
      * Mise à jour du ms
+     *
      * @param ms
-     * @return 
+     * @return
      */
     @PUT
     @Path("{msName}")
     @RolesAllowed({Roles.ADMIN})
-    public Response modifyMicroservice(@PathParam("msName") String msName, MicroService ms){
-        throw new UnsupportedOperationException("modifyMicroservice : "+msName);
+    public Response modifyMicroservice(@PathParam("msName") String msName, MicroService ms) {
+        throw new UnsupportedOperationException("modifyMicroservice : " + msName);
     }
-    
+
     @DELETE
     @Path("{msName}")
     @RolesAllowed({Roles.ADMIN})
-    public Response deleteMicroservice(@PathParam("msName") String msName){
+    public Response deleteMicroservice(@PathParam("msName") String msName) {
         throw new UnsupportedOperationException("deleteMicroservice");
     }
-    
+
     public String getCluster() {
         return cluster;
     }

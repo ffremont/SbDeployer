@@ -113,5 +113,6 @@ public class MicroServiceResourceTest {
         
         assertTrue(response.getBody().contains("totoBisToto=")); // fr.ffremont.toto
         assertTrue(response.getBody().contains("totoBis=")); // fr.ffremont
+        assertTrue(response.getBody().contains("toto=")); // fr
     }
 }

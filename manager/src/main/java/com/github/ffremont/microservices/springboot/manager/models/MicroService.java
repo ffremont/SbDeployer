@@ -40,11 +40,15 @@ public class MicroService {
     private List<String> properties;
     
     private String nsProperties;
+    
+    private MsEtat etat;
 
     public MicroService() {
+        this.etat = MsEtat.Actif;
     }
 
     public MicroService(String cluster, String node, String name, String gav) {
+        this();
         this.name = name;
         this.gav = gav;
         this.cluster = cluster;
@@ -121,6 +125,14 @@ public class MicroService {
 
     public void setNsProperties(String nsProperties) {
         this.nsProperties = nsProperties;
+    }
+
+    public MsEtat getEtat() {
+        return etat;
+    }
+
+    public void setEtat(MsEtat etat) {
+        this.etat = etat;
     }
     
     public String generateVersion(){
