@@ -35,8 +35,7 @@ public class AuthFilter implements ContainerRequestFilter {
         LOG.debug("AuthFilter process...");
         
         String authValue = requestContext.getHeaderString("authorization");
-        String username = null;
-        String password = null;
+        String username, password;
 
         if ((authValue != null) && !authValue.isEmpty()) {
             String userPwd = new String(Base64.getDecoder().decode(authValue.replace("Basic ", "")));

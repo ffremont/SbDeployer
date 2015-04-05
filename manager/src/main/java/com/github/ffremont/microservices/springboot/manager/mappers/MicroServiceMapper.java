@@ -6,6 +6,7 @@
 package com.github.ffremont.microservices.springboot.manager.mappers;
 
 import com.github.ffremont.microservices.springboot.manager.models.MicroService;
+import com.github.ffremont.microservices.springboot.pojo.Gav;
 import com.github.ffremont.microservices.springboot.pojo.MicroServiceRest;
 import java.util.function.Function;
 
@@ -17,8 +18,9 @@ public class MicroServiceMapper implements Function<MicroService, MicroServiceRe
 
     @Override
     public MicroServiceRest apply(MicroService t) {
-        MicroServiceRest msRest = new MicroServiceRest(t.getId(), t.getName(), t.getGav());
+        MicroServiceRest msRest = new MicroServiceRest(t.getId(), t.getName());
         
+        msRest.setGav(new Gav(t.getGav().getGroupId(), t.getGav().getArtifactId(), t.getGav().getPackaging(), t.getGav().getClassifier(), t.getGav().getVersion()));
         msRest.setCluster(t.getCluster());
         msRest.setNode(t.getNode());
         msRest.setNsProperties(t.getNsProperties());

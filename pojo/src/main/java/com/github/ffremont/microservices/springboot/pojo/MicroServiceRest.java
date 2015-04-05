@@ -23,7 +23,7 @@ public class MicroServiceRest {
     
     @NotNull
     @Length(max = 256)
-    private String gav;
+    private Gav gav;
     
     @Length(max = 256)
     private String url;
@@ -47,14 +47,15 @@ public class MicroServiceRest {
     
     @Length(max = 24)
     private String msEtat;
+   
+    private String sha1;
     
     public MicroServiceRest() {
     }
 
-    public MicroServiceRest(String id, String name, String gav) {
+    public MicroServiceRest(String id, String name) {
         this.id = id;
         this.name = name;
-        this.gav = gav;
     }
     
     public String getIdVersion(){
@@ -77,11 +78,11 @@ public class MicroServiceRest {
         this.name = name;
     }
 
-    public String getGav() {
+    public Gav getGav() {
         return gav;
     }
 
-    public void setGav(String gav) {
+    public void setGav(Gav gav) {
         this.gav = gav;
     }
 
@@ -139,5 +140,13 @@ public class MicroServiceRest {
 
     public void setMsEtat(String msEtat) {
         this.msEtat = msEtat;
+    }
+
+    public String getSha1() {
+        return sha1;
+    }
+
+    public void setSha1(String sha1) {
+        this.sha1 = sha1;
     }
 }

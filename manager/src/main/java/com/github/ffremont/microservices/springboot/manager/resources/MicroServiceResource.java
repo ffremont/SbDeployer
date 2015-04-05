@@ -13,6 +13,8 @@ import com.github.ffremont.microservices.springboot.manager.models.MicroService;
 import com.github.ffremont.microservices.springboot.manager.models.Property;
 import com.github.ffremont.microservices.springboot.manager.models.repo.IMicroServiceRepo;
 import com.github.ffremont.microservices.springboot.manager.models.repo.IPropertyRepo;
+import com.github.ffremont.microservices.springboot.manager.nexus.NexusClientApi;
+import com.github.ffremont.microservices.springboot.manager.nexus.NexusData;
 import com.github.ffremont.microservices.springboot.manager.security.Roles;
 import com.github.ffremont.microservices.springboot.pojo.MicroServiceRest;
 import java.io.ByteArrayOutputStream;
@@ -40,6 +42,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
+import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
@@ -63,14 +66,14 @@ public class MicroServiceResource {
 
     public final static int MAX_PAGE_MS = 30;
 
-    @Context
-    private Request request;
-
     @Autowired
     private IMicroServiceRepo microServiceRepo;
 
     @Autowired
     private IPropertyRepo propRepo;
+    
+    @Autowired
+    private NexusClientApi nexusClientApi;
 
     private String cluster;
     private String node;
@@ -115,28 +118,39 @@ public class MicroServiceResource {
     }
 
     /**
-     * Récupération du binaire
+     * Récupération du jar
      *
      * @param msName
+     * @param request
      * @return
+     * @throws java.io.IOException
      */
     @GET
     @Path("{msName}/binary")
     @RolesAllowed({Roles.ADMIN, Roles.USER})
-    public Response microserviceBinaryByName(@PathParam("msName") String msName) {
+    @Produces("application/java-archive")
+    @Consumes("application/java-archive")
+    public Response microserviceBinaryByName(@PathParam("msName") String msName, @Context Request request) throws IOException {
         // récupération du binaire
-        // http://nexus.local:8081/nexus/service/local/artifact/maven/redirect?r=snapshots&g=fr.ffremont.apps.myTasks&a=desktop-client&v=LATEST&p=zip
-        // inputStream
+        MicroService ms = this.microServiceRepo.findOneByClusterAndNodeAndName(this.cluster, this.node, msName);
 
-        String hashOfMyContent = "azerty_v1";
-        EntityTag etag = new EntityTag(hashOfMyContent);
+        if(ms == null){
+            throw new WebApplicationException("Microservice introuvable", Status.NOT_FOUND);
+        }
+        NexusData data = nexusClientApi.getData(ms.getGav().getGroupId(), ms.getGav().getArtifactId(), ms.getGav().getPackaging(), ms.getGav().getClassifier(), ms.getGav().getVersion());
+        
+        if(data == null){
+            throw new WebApplicationException("Livrable nexus introuvable", Status.NOT_FOUND);
+        }
+        
+        EntityTag etag = new EntityTag(data.getSha1());
         Response.ResponseBuilder builder = request.evaluatePreconditions(etag);
         if (builder == null) {
-            builder = Response.ok("Cache par validation de contenu");
+            Resource resource = nexusClientApi.getBinary(ms.getGav().getGroupId(), ms.getGav().getArtifactId(), ms.getGav().getPackaging(), ms.getGav().getClassifier(), ms.getGav().getVersion());
+            builder = Response.ok(resource.getInputStream());
         }
         builder.tag(etag);
 
-        //throw new UnsupportedOperationException("microserviceBinaryByName : " + msName);
         return builder.build();
 
     }

@@ -5,6 +5,7 @@
  */
 package com.github.ffremont.microservices.springboot.manager.stores;
 
+import com.github.ffremont.microservices.springboot.manager.models.Gav;
 import com.github.ffremont.microservices.springboot.manager.models.MicroService;
 import org.springframework.data.mongodb.core.MongoTemplate;
 
@@ -17,7 +18,7 @@ public class ValidMicroServiceStore {
         MicroService ms = new MicroService();
         ms.setCluster("myCluster");
         ms.setNode("myNodeA");
-        ms.setGav("fr.ffremont:myArtifact:0.0.1");
+        ms.setGav(new Gav("fr.ffremont", "myArtifact", null, "0.0.1"));
         ms.setName("toto");
         ms.setNsProperties("fr.ffremont.toto");
         

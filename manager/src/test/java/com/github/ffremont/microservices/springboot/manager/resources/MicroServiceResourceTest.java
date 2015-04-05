@@ -22,6 +22,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.boot.test.TestRestTemplate;
 import org.springframework.boot.test.WebIntegrationTest;
+import org.springframework.core.io.Resource;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -49,7 +50,7 @@ public class MicroServiceResourceTest {
     int port;
     
     RestTemplate restTemplate = new TestRestTemplate("admin", "secret");
-    
+        
     @Autowired
     private MongoTemplate mongoTemplate;
     
@@ -77,7 +78,7 @@ public class MicroServiceResourceTest {
         assertEquals(1, response.getBody().length);
         
         MicroServiceRest ms = response.getBody()[0];
-        assertEquals("fr.ffremont:myArtifact:0.0.1", ms.getGav());
+        assertEquals("fr.ffremont:myArtifact:jar:0.0.1", ms.getGav().toString());
         assertEquals("toto", ms.getName());
     }
     
@@ -114,5 +115,16 @@ public class MicroServiceResourceTest {
         assertTrue(response.getBody().contains("totoBisToto=")); // fr.ffremont.toto
         assertTrue(response.getBody().contains("totoBis=")); // fr.ffremont
         assertTrue(response.getBody().contains("toto=")); // fr
+    }
+    
+    @Test
+    public void msGetBinary404(){
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Accept", "application/java-archive");
+        HttpEntity<Resource> entity = new HttpEntity<>(headers);
+        
+        ResponseEntity<Resource> response = this.restTemplate.exchange(this.getUrlResource("myCluster", "myNodeA", "toti/binary"), HttpMethod.GET, entity, Resource.class);
+        
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
     }
 }

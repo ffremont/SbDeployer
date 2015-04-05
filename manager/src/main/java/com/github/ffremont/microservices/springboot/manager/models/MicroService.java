@@ -27,7 +27,7 @@ public class MicroService {
     
     private String name;
     
-    private String gav;
+    private Gav gav;
     
     private String url;
     
@@ -47,7 +47,7 @@ public class MicroService {
         this.etat = MsEtat.Actif;
     }
 
-    public MicroService(String cluster, String node, String name, String gav) {
+    public MicroService(String cluster, String node, String name, Gav gav) {
         this();
         this.name = name;
         this.gav = gav;
@@ -78,12 +78,12 @@ public class MicroService {
     public void setNode(String node) {
         this.node = node;
     }
-    
-    public String getGav() {
+
+    public Gav getGav() {
         return gav;
     }
 
-    public void setGav(String gav) {
+    public void setGav(Gav gav) {
         this.gav = gav;
     }
 

@@ -44,7 +44,7 @@ public class InstallJarTask implements IMicroServiceTask {
         try {
             Files.copy(task.getJar(), jarTarget);
 
-            MessageDigest md = MessageDigest.getInstance("MD5");
+            MessageDigest md = MessageDigest.getInstance("SHA-1");
             DigestInputStream digestIs = new DigestInputStream(new FileInputStream(jarTarget.toFile()), md);
             byte[] buffer = new byte[10240]; // 10ko
             while (0 < digestIs.read(buffer)) {}
