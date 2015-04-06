@@ -66,6 +66,7 @@
             <artifactId>spring-data-mongodb</artifactId>
             <type>jar</type>
         </dependency>
+
         <!--dependency>
             <groupId>org.glassfish.jersey.core</groupId>
             <artifactId>jersey-server</artifactId>
