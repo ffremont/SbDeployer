@@ -59,7 +59,7 @@ public class MicroServiceRest {
     }
     
     public String getIdVersion(){
-        return this.id+this.version;
+        return this.id+"_"+this.version;
     }
     
     public String getId() {

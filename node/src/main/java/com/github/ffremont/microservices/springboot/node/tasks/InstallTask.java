@@ -64,7 +64,7 @@ public class InstallTask implements IMicroServiceTask {
 
             if (Files.exists(checksumPath)) {
                 LOG.debug("Checksum récupéré {}", checksumPath);
-                if (!task.getChecksum().equals(Arrays.toString(Files.readAllBytes(checksumPath)))) {
+                if (!task.getMs().getSha1().equals(new String(Files.readAllBytes(checksumPath)))) {
                     throw new InvalidInstallationException("Le checksum n'est pas valide : " + this.nodeBase);
                 }
             } else {

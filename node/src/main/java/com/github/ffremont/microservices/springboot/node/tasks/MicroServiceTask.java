@@ -6,7 +6,6 @@
 package com.github.ffremont.microservices.springboot.node.tasks;
 
 import com.github.ffremont.microservices.springboot.pojo.MicroServiceRest;
-import java.io.File;
 import java.nio.file.Path;
 
 /**
@@ -14,9 +13,10 @@ import java.nio.file.Path;
  * @author florent
  */
 public class MicroServiceTask {
+    /**
+     * 
+     */
     private MicroServiceRest ms;
-    
-    private String checksum;
     
     /**
      * Chemin du fichier binaire
@@ -42,13 +42,5 @@ public class MicroServiceTask {
 
     public void setJar(Path jar) {
         this.jar = jar;
-    }
-
-    public String getChecksum() {
-        return checksum;
-    }
-
-    public void setChecksum(String checksum) {
-        this.checksum = checksum;
     }
 }

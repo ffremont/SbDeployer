@@ -5,7 +5,6 @@
  */
 package com.github.ffremont.microservices.springboot.node.services;
 
-import com.github.ffremont.microservices.springboot.node.exceptions.FailUpdateException;
 import com.github.ffremont.microservices.springboot.pojo.MicroServiceRest;
 import java.util.List;
 import javax.ws.rs.NotSupportedException;
@@ -41,8 +40,4 @@ public class MsService {
     public byte[] getContentOfProperties(String msName){
         throw new NotSupportedException("not supported");
     } 
-    
-    public void changeVersion() throws FailUpdateException{
-        throw new NotSupportedException("not supported");
-    }
 }

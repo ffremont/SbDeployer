@@ -12,5 +12,5 @@ import com.github.ffremont.microservices.springboot.node.exceptions.TaskExceptio
  * @author florent
  */
 public interface IMicroServiceTask {
-    public void run(MicroServiceTask task) throws TaskException;
+    public void run(MicroServiceTask taks) throws TaskException;
 }
