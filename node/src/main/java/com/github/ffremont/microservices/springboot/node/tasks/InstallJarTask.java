@@ -35,11 +35,15 @@ public class InstallJarTask implements IMicroServiceTask {
 
     @Override
     public void run(MicroServiceTask task) throws TaskException {
-        Path msVersionFolder = Paths.get(this.nodeBase, task.getMs().getVersion());
+        Path msVersionFolder = Paths.get(this.nodeBase, task.getMs().getName(), task.getMs().getVersion());
         Path checksumPath = Paths.get(msVersionFolder.toString(), InstallTask.CHECKSUM_FILE_NAME + ".txt");
         Path jarTarget = Paths.get(msVersionFolder.toString(), task.getMs().getIdVersion() + ".jar");
 
         try {
+            if(task.getJar() == null){
+                throw new InvalidInstallationException("Jar indisponible dans l'objet MicroServiceTask");
+            }
+            
             Files.copy(task.getJar(), jarTarget);
             MessageDigest md = MessageDigest.getInstance("SHA-1");
             

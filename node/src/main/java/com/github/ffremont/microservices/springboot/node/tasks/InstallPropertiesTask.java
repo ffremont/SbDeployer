@@ -34,7 +34,7 @@ public class InstallPropertiesTask implements IMicroServiceTask {
     
     @Override
     public void run(MicroServiceTask task) throws InvalidInstallationException {
-        Path msVersionFolder = Paths.get(this.nodeBase, task.getMs().getVersion());
+        Path msVersionFolder = Paths.get(this.nodeBase, task.getMs().getName(), task.getMs().getVersion());
         
         byte[] content = msService.getContentOfProperties(task.getMs().getName());
         Path applicationProp = Paths.get(msVersionFolder.toString(), "application.properties");

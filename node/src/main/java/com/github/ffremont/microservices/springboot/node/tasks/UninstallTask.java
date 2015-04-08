@@ -5,17 +5,14 @@
  */
 package com.github.ffremont.microservices.springboot.node.tasks;
 
-import com.github.ffremont.microservices.springboot.node.exceptions.FailCreateMsException;
-import com.github.ffremont.microservices.springboot.pojo.MicroServiceRest;
-import java.io.File;
+import com.github.ffremont.microservices.springboot.node.exceptions.InvalidInstallationException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -26,17 +23,50 @@ import org.springframework.stereotype.Component;
 @Component
 public class UninstallTask implements IMicroServiceTask {
 
+    private final static Logger LOG = LoggerFactory.getLogger(UninstallTask.class);
+    
     @Value("${app.base}")
     private String nodeBase;
+    
+    /**
+     * 
+     * @param path
+     * @throws IOException 
+     */
+    private void remove(Path path) throws IOException{
+        Files.list(path).forEach((Path item) -> {
+            try{
+                if(Files.isDirectory(item)){
+                    this.remove(item);
+                }else{
+                     Files.delete(item);
+                }
+            }catch(IOException e){
+                LOG.error("Impossible de supprmimer les éléments dans "+item.toAbsolutePath(), e);
+            }
+        });
+        
+         Files.delete(path);
+    }
 
     /**
-     * Installation
+     * Suppression du répertoire lié à la version
      *
      * @param task
+     * @throws com.github.ffremont.microservices.springboot.node.exceptions.InvalidInstallationException
      */
     @Override
-    public void run(MicroServiceTask task) {
+    public void run(MicroServiceTask task) throws InvalidInstallationException {
+        LOG.info("Désinstallation du micro service {}...", task.getMs().getName());
+        try {
+            Path msVersionFolder = Paths.get(this.nodeBase, task.getMs().getName(), task.getMs().getVersion());
+            
+            this.remove(msVersionFolder);
+        } catch (IOException ex) {
+            throw new InvalidInstallationException("Impossible de désinstaller", ex);
+        }
         
+        LOG.info("Micro service {} désinstallé", task.getMs().getName());
     }
 
 }

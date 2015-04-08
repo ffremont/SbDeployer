@@ -62,8 +62,8 @@ public class InstallPropertiesTaskTest extends AbstractInstallTest{
         byte[] propContent = Files.readAllBytes(propSrc);
         when(msService.getContentOfProperties(eq(ms.getName()))).thenReturn(propContent);
         
-        Path msVersionFolder = Paths.get(this.nodeBase, ms.getVersion());
-        Files.createDirectory(msVersionFolder);
+        Path msVersionFolder = Paths.get(this.nodeBase, ms.getName(), ms.getVersion());;
+        Files.createDirectories(msVersionFolder);
         
         task.run(msTask);
         

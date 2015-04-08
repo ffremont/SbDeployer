@@ -22,7 +22,7 @@ import org.springframework.web.client.RestTemplate;
  */
 public class SimpleTestConfiguration {
 
-    public final static String SHA1_HELLO_JAR = "7d2a4fc8ac8c28ea50f0ce79f57908d42757e0fe";
+    public final static String SHA1_HELLO_JAR = "ce367887c52387d73a84c265201f4b14504edc8d";
 
     @Bean
     public InstallJarTask getInstallJarTask() {

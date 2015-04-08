@@ -23,6 +23,10 @@ public class MicroServiceTask {
      */
     private Path jar;
 
+    public MicroServiceTask(MicroServiceRest ms) {
+        this.ms = ms;
+    }
+    
     public MicroServiceTask(MicroServiceRest ms, Path path) {
         this.ms = ms;
         this.jar = path;

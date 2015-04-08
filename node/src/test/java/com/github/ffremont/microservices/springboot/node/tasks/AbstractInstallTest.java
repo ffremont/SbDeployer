@@ -9,6 +9,7 @@ import com.github.ffremont.microservices.springboot.pojo.MicroServiceRest;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.logging.Level;
 import org.slf4j.Logger;
@@ -26,23 +27,22 @@ public abstract class AbstractInstallTest {
     @Value("${app.base}")
     protected String nodeBase;
     
-    public void before() throws IOException{
-        Files.list(Paths.get(nodeBase)).forEach(element -> {
-            try {
-                if(Files.isDirectory(element)){
-                    Files.list(element).forEach(elementt -> {
-                        try {
-                            Files.delete(elementt);
-                        } catch (IOException ex) {
-                            LOG.error("Impossible de nettoyer", ex);
-                        }
-                    });
+    private void remove(Path path) throws IOException{
+        Files.list(path).forEach(item -> {
+            try{
+                if(Files.isDirectory(item)){
+                    this.remove(item);
                 }
-                Files.delete(element);
-            } catch (IOException ex) {
-                LOG.error("Impossible de nettoyer", ex);
-            } 
+                
+                Files.delete(item);
+            }catch(IOException e){
+                LOG.error("Impossible de nettoyer", e);
+            }
         });
+    }
+    
+    public void before() throws IOException{
+        this.remove(Paths.get(nodeBase));
     }
     
     public MicroServiceTask create(){

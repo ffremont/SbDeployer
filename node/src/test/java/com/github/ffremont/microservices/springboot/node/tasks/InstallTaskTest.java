@@ -29,75 +29,75 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = InstallTaskTestConfiguration.class)
 @ActiveProfiles("test")
-public class InstallTaskTest extends AbstractInstallTest{
+public class InstallTaskTest extends AbstractInstallTest {
 
     @Autowired
     private InstallJarTask mockInstallJarTask;
-    
+
     @Autowired
     private InstallPropertiesTask mockInstallPropertiesTask;
-    
+
     @Autowired
     private InstallTask task;
-    
+
     @Before
     @Override
-    public void before() throws IOException{
+    public void before() throws IOException {
         super.before();
-        
+
         reset(mockInstallJarTask);
         reset(mockInstallPropertiesTask);
     }
-    
+
     @Test
     public void testRunFull() throws Exception {
         MicroServiceTask msTask = this.create();
-        
+
         doNothing().when(mockInstallJarTask).run(anyObject());
         doNothing().when(mockInstallPropertiesTask).run(anyObject());
-        
+
         task.run(msTask);
-        
+
         verify(mockInstallJarTask, times(1)).run(anyObject());
         verify(mockInstallPropertiesTask, times(1)).run(anyObject());
     }
-    
+
     @Test
     public void testRunDetectChecksumOk() throws Exception {
         MicroServiceTask msTask = this.create();
-        
+
         doNothing().when(mockInstallJarTask).run(anyObject());
         doNothing().when(mockInstallPropertiesTask).run(anyObject());
-        
-        Path msVersionFolder = Paths.get(this.nodeBase, msTask.getMs().getVersion());
-        Files.createDirectory(msVersionFolder);
-        
+
+        Path msVersionFolder = Paths.get(this.nodeBase, msTask.getMs().getName(), msTask.getMs().getVersion());;
+        Files.createDirectories(msVersionFolder);
+
         Path checksumPath = Paths.get(msVersionFolder.toString(), InstallTask.CHECKSUM_FILE_NAME + ".txt");
         Files.write(checksumPath, msTask.getMs().getSha1().getBytes());
-                
+
         task.run(msTask);
-        
+
         verify(mockInstallJarTask, times(0)).run(anyObject());
         verify(mockInstallPropertiesTask, times(1)).run(anyObject());
     }
-    
+
     @Test(expected = InvalidInstallationException.class)
     public void testRunDetectChecksumKo() throws Exception {
         MicroServiceTask msTask = this.create();
-        
+
         doNothing().when(mockInstallJarTask).run(anyObject());
         doNothing().when(mockInstallPropertiesTask).run(anyObject());
-        
-        Path msVersionFolder = Paths.get(this.nodeBase, msTask.getMs().getVersion());
-        Files.createDirectory(msVersionFolder);
-        
+
+        Path msVersionFolder = Paths.get(this.nodeBase, msTask.getMs().getName(), msTask.getMs().getVersion());;
+        Files.createDirectories(msVersionFolder);
+
         Path checksumPath = Paths.get(msVersionFolder.toString(), InstallTask.CHECKSUM_FILE_NAME + ".txt");
         Files.write(checksumPath, "FAILLLL SHA1".getBytes());
-                
+
         task.run(msTask);
-        
+
         verify(mockInstallJarTask, times(1)).run(anyObject());
         verify(mockInstallPropertiesTask, times(0)).run(anyObject());
     }
-    
+
 }

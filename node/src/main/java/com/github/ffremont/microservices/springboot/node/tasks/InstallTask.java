@@ -12,7 +12,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,12 +49,13 @@ public class InstallTask implements IMicroServiceTask {
      */
     @Override
     public void run(MicroServiceTask task) throws InvalidInstallationException, FailCreateMsException, TaskException {
-        Path msVersionFolder = Paths.get(this.nodeBase, task.getMs().getVersion());
+        LOG.info("Installation du micro service {}...", task.getMs().getName());
+        Path msVersionFolder = Paths.get(this.nodeBase, task.getMs().getName(), task.getMs().getVersion());
         LOG.debug("Répertoire d'installation {}", msVersionFolder);
 
         try {
             if (Files.notExists(msVersionFolder)) {
-                Files.createDirectory(msVersionFolder);
+                Files.createDirectories(msVersionFolder);
                 LOG.debug("Répertoire créé");
             }
 
@@ -76,6 +76,8 @@ public class InstallTask implements IMicroServiceTask {
             LOG.warn("Anomalie non prévue lors de l'installation", ex);
             throw new FailCreateMsException("Installation impossible", ex);
         }
+        
+        LOG.info("Micro service {} installé", task.getMs().getName());
     }
 
 }

@@ -47,8 +47,8 @@ public class InstallJarTaskTest extends AbstractInstallTest{
         MicroServiceTask msTask = this.create();
         MicroServiceRest ms = msTask.getMs();
 
-        Path msVersionFolder = Paths.get(this.nodeBase, ms.getVersion());
-        Files.createDirectory(msVersionFolder);
+        Path msVersionFolder = Paths.get(this.nodeBase, ms.getName(), ms.getVersion());
+        Files.createDirectories(msVersionFolder);
 
         task.run(msTask);
 
@@ -71,8 +71,8 @@ public class InstallJarTaskTest extends AbstractInstallTest{
         ms.setSha1("FAILLL");
         MicroServiceTask msTask = new MicroServiceTask(ms, Paths.get(Thread.currentThread().getContextClassLoader().getResource("hello.jar").toURI()));
 
-        Path msVersionFolder = Paths.get(this.nodeBase, ms.getVersion());
-        Files.createDirectory(msVersionFolder);
+        Path msVersionFolder = Paths.get(this.nodeBase, ms.getName(), ms.getVersion());;
+        Files.createDirectories(msVersionFolder);
 
         task.run(msTask);
     }
