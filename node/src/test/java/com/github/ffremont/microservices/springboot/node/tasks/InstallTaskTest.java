@@ -5,6 +5,7 @@
  */
 package com.github.ffremont.microservices.springboot.node.tasks;
 
+import com.github.ffremont.microservices.springboot.node.NodeHelper;
 import com.github.ffremont.microservices.springboot.node.exceptions.InvalidInstallationException;
 import static com.github.ffremont.microservices.springboot.node.tasks.InstallTask.CHECKSUM_FILE_NAME;
 import com.github.ffremont.microservices.springboot.pojo.MicroServiceRest;
@@ -36,6 +37,9 @@ public class InstallTaskTest extends AbstractInstallTest {
 
     @Autowired
     private InstallPropertiesTask mockInstallPropertiesTask;
+    
+    @Autowired
+    private NodeHelper helper;
 
     @Autowired
     private InstallTask task;
@@ -45,6 +49,7 @@ public class InstallTaskTest extends AbstractInstallTest {
     public void before() throws IOException {
         super.before();
 
+        reset(helper);
         reset(mockInstallJarTask);
         reset(mockInstallPropertiesTask);
     }
@@ -55,11 +60,13 @@ public class InstallTaskTest extends AbstractInstallTest {
 
         doNothing().when(mockInstallJarTask).run(anyObject());
         doNothing().when(mockInstallPropertiesTask).run(anyObject());
+        when(helper.targetDirOf(anyObject())).thenReturn(Paths.get(this.nodeBase, msTask.getMs().getName(), msTask.getMs().getVersion()));
 
         task.run(msTask);
 
         verify(mockInstallJarTask, times(1)).run(anyObject());
         verify(mockInstallPropertiesTask, times(1)).run(anyObject());
+        verify(helper, times(1)).targetDirOf(anyObject());
     }
 
     @Test
@@ -68,9 +75,10 @@ public class InstallTaskTest extends AbstractInstallTest {
 
         doNothing().when(mockInstallJarTask).run(anyObject());
         doNothing().when(mockInstallPropertiesTask).run(anyObject());
-
-        Path msVersionFolder = Paths.get(this.nodeBase, msTask.getMs().getName(), msTask.getMs().getVersion());;
+        
+        Path msVersionFolder = Paths.get(this.nodeBase, msTask.getMs().getName(), msTask.getMs().getVersion());
         Files.createDirectories(msVersionFolder);
+        when(helper.targetDirOf(anyObject())).thenReturn(msVersionFolder);
 
         Path checksumPath = Paths.get(msVersionFolder.toString(), InstallTask.CHECKSUM_FILE_NAME + ".txt");
         Files.write(checksumPath, msTask.getMs().getSha1().getBytes());
@@ -90,6 +98,7 @@ public class InstallTaskTest extends AbstractInstallTest {
 
         Path msVersionFolder = Paths.get(this.nodeBase, msTask.getMs().getName(), msTask.getMs().getVersion());;
         Files.createDirectories(msVersionFolder);
+        when(helper.targetDirOf(anyObject())).thenReturn(msVersionFolder);
 
         Path checksumPath = Paths.get(msVersionFolder.toString(), InstallTask.CHECKSUM_FILE_NAME + ".txt");
         Files.write(checksumPath, "FAILLLL SHA1".getBytes());

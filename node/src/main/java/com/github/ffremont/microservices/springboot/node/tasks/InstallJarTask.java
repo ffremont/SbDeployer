@@ -5,6 +5,7 @@
  */
 package com.github.ffremont.microservices.springboot.node.tasks;
 
+import com.github.ffremont.microservices.springboot.node.NodeHelper;
 import com.github.ffremont.microservices.springboot.node.exceptions.InvalidInstallationException;
 import com.github.ffremont.microservices.springboot.node.exceptions.TaskException;
 import java.io.FileInputStream;
@@ -18,6 +19,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -32,12 +34,15 @@ public class InstallJarTask implements IMicroServiceTask {
 
     @Value("${app.base}")
     private String nodeBase;
+    
+    @Autowired
+    private NodeHelper helper;
 
     @Override
     public void run(MicroServiceTask task) throws TaskException {
-        Path msVersionFolder = Paths.get(this.nodeBase, task.getMs().getName(), task.getMs().getVersion());
+        Path msVersionFolder = helper.targetDirOf(task.getMs());
         Path checksumPath = Paths.get(msVersionFolder.toString(), InstallTask.CHECKSUM_FILE_NAME + ".txt");
-        Path jarTarget = Paths.get(msVersionFolder.toString(), task.getMs().getIdVersion() + ".jar");
+        Path jarTarget = helper.targetJarOf(task.getMs());
 
         try {
             if(task.getJar() == null){

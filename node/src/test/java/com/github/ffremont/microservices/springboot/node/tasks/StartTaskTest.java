@@ -5,6 +5,7 @@
  */
 package com.github.ffremont.microservices.springboot.node.tasks;
 
+import com.github.ffremont.microservices.springboot.node.NodeHelper;
 import com.github.ffremont.microservices.springboot.pojo.MicroServiceRest;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -24,6 +25,7 @@ public class StartTaskTest {
     @Test
     public void testRun() throws Exception {
         StartTask task = new StartTask();
+        NodeHelper helper = new  NodeHelper();
 
         MicroServiceRest ms = new MicroServiceRest();
         ms.setName("msClient");
@@ -32,12 +34,15 @@ public class StartTaskTest {
         MicroServiceTask msTask = new MicroServiceTask(ms, Paths.get(Thread.currentThread().getContextClassLoader().getResource("hello.jar").toURI()));
 
         Path temp = Files.createTempDirectory("testStartTask");
-        Files.createDirectories(Paths.get(temp.toString(), msTask.getMs().getName(), msTask.getMs().getVersion()));
+        helper.setNodeBase(temp.toString());
+        Files.createDirectories(helper.targetDirOf(ms));
+        Files.write(Paths.get( helper.targetDirOf(ms).toString(), InstallTask.CHECKSUM_FILE_NAME+".txt" ), SimpleTestConfiguration.SHA1_HELLO_JAR.getBytes());
 
         Path jarTarget = Paths.get(temp.toString(), msTask.getMs().getName(), msTask.getMs().getVersion(), msTask.getMs().getIdVersion() + ".jar");
         Files.copy(msTask.getJar(), jarTarget);
-
-        task.setNodeBase(temp.toString());
+      
+        helper.setNodeBase(temp.toString());
+        task.setHelper(helper);
         task.run(msTask);
     }
 

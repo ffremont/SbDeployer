@@ -5,6 +5,7 @@
  */
 package com.github.ffremont.microservices.springboot.node.tasks;
 
+import com.github.ffremont.microservices.springboot.node.NodeHelper;
 import com.github.ffremont.microservices.springboot.node.exceptions.InvalidInstallationException;
 import com.github.ffremont.microservices.springboot.pojo.MicroServiceRest;
 import java.io.IOException;
@@ -15,6 +16,9 @@ import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import static org.mockito.Matchers.anyObject;
+import static org.mockito.Mockito.reset;
+import static org.mockito.Mockito.when;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,10 +40,15 @@ public class InstallJarTaskTest extends AbstractInstallTest{
     @Autowired
     private InstallJarTask task;
     
+    @Autowired
+    private NodeHelper helper;
+    
     @Before
     @Override
     public void before() throws IOException{
         super.before();
+        
+        reset(helper);
     }
 
     @Test
@@ -49,14 +58,16 @@ public class InstallJarTaskTest extends AbstractInstallTest{
 
         Path msVersionFolder = Paths.get(this.nodeBase, ms.getName(), ms.getVersion());
         Files.createDirectories(msVersionFolder);
-
+        when(helper.targetDirOf(anyObject())).thenReturn(msVersionFolder);
+        when(helper.targetJarOf(anyObject())).thenReturn(Paths.get(msVersionFolder.toString(), NodeHelper.jarNameOf(ms)));
+        
         task.run(msTask);
 
         Path checksumFile = Paths.get(msVersionFolder.toString(), InstallTask.CHECKSUM_FILE_NAME + ".txt");
         assertTrue(Files.exists(checksumFile));
         assertArrayEquals(ms.getSha1().getBytes(), Files.readAllBytes(checksumFile));
 
-        Path binary = Paths.get(msVersionFolder.toString(), ms.getIdVersion() + ".jar");
+        Path binary = Paths.get(msVersionFolder.toString(), NodeHelper.jarNameOf(ms));
         assertTrue(Files.exists(binary));
 
         LOG.info("testRun : " + nodeBase);
@@ -73,6 +84,8 @@ public class InstallJarTaskTest extends AbstractInstallTest{
 
         Path msVersionFolder = Paths.get(this.nodeBase, ms.getName(), ms.getVersion());;
         Files.createDirectories(msVersionFolder);
+        when(helper.targetDirOf(anyObject())).thenReturn(msVersionFolder);
+        when(helper.targetJarOf(anyObject())).thenReturn(Paths.get(msVersionFolder.toString(), NodeHelper.jarNameOf(ms)));
 
         task.run(msTask);
     }

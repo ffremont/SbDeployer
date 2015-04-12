@@ -5,6 +5,7 @@
  */
 package com.github.ffremont.microservices.springboot.node.tasks;
 
+import com.github.ffremont.microservices.springboot.node.NodeHelper;
 import com.github.ffremont.microservices.springboot.node.services.MsService;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -24,6 +25,11 @@ public class SimpleTestConfiguration {
 
     public final static String SHA1_HELLO_JAR = "ce367887c52387d73a84c265201f4b14504edc8d";
 
+    @Bean
+    public NodeHelper getNodeHelper() {
+        return Mockito.mock(NodeHelper.class);
+    }
+    
     @Bean
     public InstallJarTask getInstallJarTask() {
         return new InstallJarTask();
@@ -57,6 +63,9 @@ public class SimpleTestConfiguration {
         myMap.put("app.base", Files.createTempDirectory("appBaseNode").toString());
         myMap.put("app.cluster", "myCuster");
         myMap.put("app.node", "myNode");
+        myMap.put("app.master.host", "localhost");
+        myMap.put("app.master.port", "9999");
+        myMap.put("app.master.contextRoot", "/test");
         props.putAll(myMap);
 
         configurer.setProperties(props);

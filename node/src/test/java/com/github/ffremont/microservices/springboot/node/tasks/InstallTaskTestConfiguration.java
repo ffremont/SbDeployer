@@ -5,6 +5,7 @@
  */
 package com.github.ffremont.microservices.springboot.node.tasks;
 
+import com.github.ffremont.microservices.springboot.node.NodeHelper;
 import com.github.ffremont.microservices.springboot.node.services.MsService;
 import java.io.IOException;
 import org.mockito.Mockito;
@@ -20,6 +21,11 @@ public class InstallTaskTestConfiguration {
 
     public SimpleTestConfiguration simpleTest = new SimpleTestConfiguration();
 
+    @Bean
+    public NodeHelper getNodeHelper() {
+        return Mockito.mock(NodeHelper.class);
+    }
+    
     @Bean
     public InstallJarTask getInstallJarTask() {
         return Mockito.mock(InstallJarTask.class);

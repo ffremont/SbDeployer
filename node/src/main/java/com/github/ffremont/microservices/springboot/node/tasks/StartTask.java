@@ -5,16 +5,16 @@
  */
 package com.github.ffremont.microservices.springboot.node.tasks;
 
+import com.github.ffremont.microservices.springboot.node.NodeHelper;
 import com.github.ffremont.microservices.springboot.node.exceptions.FailStartedException;
 import com.github.ffremont.microservices.springboot.node.exceptions.FileMsNotFoundException;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
@@ -27,8 +27,9 @@ public class StartTask implements IMicroServiceTask {
     
     private final static Logger LOG = LoggerFactory.getLogger(StartTask.class);
     
-    @Value("${app.base}")
-    private String nodeBase;
+    @Autowired
+    private NodeHelper helper;
+    
     
     /**
      * Syntaxe : java [-options] class [args...] (pour l'exécution d'une classe)
@@ -37,19 +38,19 @@ public class StartTask implements IMicroServiceTask {
      *
      * @param task
      * @throws com.github.ffremont.microservices.springboot.node.exceptions.FailStartedException
+     * @throws com.github.ffremont.microservices.springboot.node.exceptions.FileMsNotFoundException
      */
     @Override
     public void run(MicroServiceTask task) throws FailStartedException, FileMsNotFoundException {
         LOG.info("Démarrage du micro service {}", task.getMs().getName());
         
-        Path msVersionFolder = Paths.get(this.nodeBase, task.getMs().getName(), task.getMs().getVersion());
-        Path jar = Paths.get(msVersionFolder.toString(), task.getMs().getIdVersion()+".jar");
+        Path jar = helper.targetJarOf(task.getMs());
         
-        if(Files.exists(jar)){
-            throw new FileMsNotFoundException("Jar inexistant");
+        if(!Files.exists(jar) || !Files.exists(Paths.get(helper.targetDirOf(task.getMs()).toString(), InstallTask.CHECKSUM_FILE_NAME+".txt"))){
+            throw new FileMsNotFoundException("Jar inexistant ou invalide");
         }
         
-        ProcessBuilder ps = new ProcessBuilder("nohup", "java", "-jar", Paths.get(msVersionFolder.toString(), task.getMs().getIdVersion()+".jar").toString(), ">/dev/null", "2>&1", "&");
+        ProcessBuilder ps = new ProcessBuilder("nohup", "java", "-jar", helper.targetJarOf(task.getMs()).toString(), ">/dev/null", "2>&1", "&");
         try {
             LOG.info("Run de {}", ps.command().toString());
             ps.start();
@@ -60,11 +61,11 @@ public class StartTask implements IMicroServiceTask {
         LOG.info("Micro service {} démarré", task.getMs().getName());
     }
 
-    public String getNodeBase() {
-        return nodeBase;
+    public NodeHelper getHelper() {
+        return helper;
     }
 
-    public void setNodeBase(String nodeBase) {
-        this.nodeBase = nodeBase;
+    public void setHelper(NodeHelper helper) {
+        this.helper = helper;
     }
 }

@@ -5,6 +5,7 @@
  */
 package com.github.ffremont.microservices.springboot.node.tasks;
 
+import com.github.ffremont.microservices.springboot.node.NodeHelper;
 import com.github.ffremont.microservices.springboot.node.exceptions.InvalidInstallationException;
 import com.github.ffremont.microservices.springboot.node.services.MsService;
 import java.io.IOException;
@@ -30,11 +31,14 @@ public class InstallPropertiesTask implements IMicroServiceTask {
     private String nodeBase;
     
     @Autowired
+    private NodeHelper helper;
+    
+    @Autowired
     private MsService msService;
     
     @Override
     public void run(MicroServiceTask task) throws InvalidInstallationException {
-        Path msVersionFolder = Paths.get(this.nodeBase, task.getMs().getName(), task.getMs().getVersion());
+        Path msVersionFolder = helper.targetDirOf(task.getMs());
         
         byte[] content = msService.getContentOfProperties(task.getMs().getName());
         Path applicationProp = Paths.get(msVersionFolder.toString(), "application.properties");

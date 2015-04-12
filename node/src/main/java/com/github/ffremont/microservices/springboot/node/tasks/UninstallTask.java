@@ -5,6 +5,7 @@
  */
 package com.github.ffremont.microservices.springboot.node.tasks;
 
+import com.github.ffremont.microservices.springboot.node.NodeHelper;
 import com.github.ffremont.microservices.springboot.node.exceptions.InvalidInstallationException;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -13,6 +14,7 @@ import java.nio.file.Paths;
 import java.util.logging.Level;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -25,8 +27,8 @@ public class UninstallTask implements IMicroServiceTask {
 
     private final static Logger LOG = LoggerFactory.getLogger(UninstallTask.class);
     
-    @Value("${app.base}")
-    private String nodeBase;
+    @Autowired
+    private NodeHelper helper;
     
     /**
      * 
@@ -59,9 +61,7 @@ public class UninstallTask implements IMicroServiceTask {
     public void run(MicroServiceTask task) throws InvalidInstallationException {
         LOG.info("Désinstallation du micro service {}...", task.getMs().getName());
         try {
-            Path msVersionFolder = Paths.get(this.nodeBase, task.getMs().getName(), task.getMs().getVersion());
-            
-            this.remove(msVersionFolder);
+            this.remove(helper.targetDirOf(task.getMs()));
         } catch (IOException ex) {
             throw new InvalidInstallationException("Impossible de désinstaller", ex);
         }

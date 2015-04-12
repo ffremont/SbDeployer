@@ -15,8 +15,13 @@ import com.github.ffremont.microservices.springboot.node.tasks.InstallTask;
 import com.github.ffremont.microservices.springboot.node.tasks.MicroServiceTask;
 import com.github.ffremont.microservices.springboot.node.tasks.ShutdownTask;
 import com.github.ffremont.microservices.springboot.node.tasks.StartTask;
+import com.github.ffremont.microservices.springboot.node.tasks.UninstallTask;
 import com.github.ffremont.microservices.springboot.pojo.MicroServiceRest;
 import com.github.ffremont.microservices.springboot.pojo.MsEtatRest;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.logging.Level;
 import org.slf4j.Logger;
@@ -36,13 +41,16 @@ public class NodeEngine {
 
     @Autowired
     private MsService msService;
-    
+
     @Autowired
     private InstallTask installTask;
     
     @Autowired
+    private UninstallTask unInstallTask;
+
+    @Autowired
     private StartTask startTask;
-    
+
     @Autowired
     private ShutdownTask shutdownTask;
 
@@ -56,28 +64,42 @@ public class NodeEngine {
         List<MicroServiceRest> lesMs = msService.getMicroServices();
 
         PsCommand.PsCommandResult psResult = (new PsCommand()).exec();
+        MicroServiceTask msTask;
         for (MicroServiceRest ms : lesMs) {
-            try{
+            try {
+                msTask = new MicroServiceTask(ms);
+                msTask.setMs(ms);
                 // version courante - NOT RUNNING ?
                 if (!psResult.isRunning(ms.getIdVersion())) {
                     // ancienne version running ?
                     if (psResult.isRunning(ms.getId())) {
-                        shutdownTask.run(new MicroServiceTask(ms));
+                        shutdownTask.run(msTask);
                     }
 
                     if (MsEtatRest.ACTIF.equals(ms.getMsEtat())) {
                         try {
-                            startTask.run(new MicroServiceTask(ms));
+                            startTask.run(msTask);
                         } catch (FileMsNotFoundException ex) {
-                            LOG.warn("Démarrage du micro service impossible : "+ms.getId(), ex);
-                            
-                            
-                            //installTask.run();
-                        } 
+                            LOG.warn("Démarrage du micro service impossible : " + ms.getId(), ex);
+
+                            unInstallTask.run(msTask);
+                            msTask.setJar(msService.getBinary(ms.getName()));
+                            try{
+                                installTask.run(msTask);
+                            }finally{
+                                if(msTask.getJar() != null){
+                                    try {
+                                        Files.delete(msTask.getJar());
+                                    } catch (IOException ex1) {
+                                        LOG.warn("Suppression du binaire temporaire impossible", ex1);
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
             } catch (TaskException ex) {
-                LOG.error("Arrêt du micro service impossible : "+ms.getId());
+                LOG.error("Arrêt du micro service impossible : " + ms.getId());
             }
         }
     }

@@ -5,6 +5,7 @@
  */
 package com.github.ffremont.microservices.springboot.node.tasks;
 
+import com.github.ffremont.microservices.springboot.node.NodeHelper;
 import com.github.ffremont.microservices.springboot.node.exceptions.FailCreateMsException;
 import com.github.ffremont.microservices.springboot.node.exceptions.InvalidInstallationException;
 import com.github.ffremont.microservices.springboot.node.exceptions.TaskException;
@@ -33,6 +34,9 @@ public class InstallTask implements IMicroServiceTask {
     private String nodeBase;
     
     @Autowired
+    private NodeHelper helper;
+    
+    @Autowired
     private InstallJarTask installJarTask;
 
     @Autowired
@@ -50,7 +54,7 @@ public class InstallTask implements IMicroServiceTask {
     @Override
     public void run(MicroServiceTask task) throws InvalidInstallationException, FailCreateMsException, TaskException {
         LOG.info("Installation du micro service {}...", task.getMs().getName());
-        Path msVersionFolder = Paths.get(this.nodeBase, task.getMs().getName(), task.getMs().getVersion());
+        Path msVersionFolder = helper.targetDirOf(task.getMs());
         LOG.debug("Répertoire d'installation {}", msVersionFolder);
 
         try {
