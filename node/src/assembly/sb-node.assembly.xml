@@ -15,24 +15,23 @@
             </excludes>
         </fileSet>
         <fileSet>
-            <directory>${project.basedir}/src/main/resources</directory>
+            <directory>./</directory>
             <outputDirectory>/config</outputDirectory>
-            <includes>
-                <include>application.properties</include>
-            </includes>
+            <excludes>
+                <exclude>*/**</exclude>
+            </excludes>
         </fileSet>
-        <!--fileSet>
-            <directory>${project.basedir}/target/${project.build.finalName}</directory>
-            <outputDirectory>/</outputDirectory>
-            <includes>
-                <include>**</include>
-            </includes>
-        </fileSet-->
     </fileSets>
     <files>
         <file>
             <source>${project.basedir}/target/${project.build.finalName}.jar</source>
             <outputDirectory>/</outputDirectory>
+            <filtered>false</filtered>
+        </file>
+        <file>
+            <source>${project.basedir}/src/main/resources/application-prod.properties</source>
+            <outputDirectory>/config</outputDirectory>
+            <destName>application.properties</destName>
             <filtered>false</filtered>
         </file>
     </files>

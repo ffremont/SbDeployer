@@ -30,6 +30,7 @@ public class MasterUrlBuilder {
         this.host = host;
         this.port = port;
         this.contextRoot = contextRoot;
+        this.uri = "";
     }
     
     public String build(){

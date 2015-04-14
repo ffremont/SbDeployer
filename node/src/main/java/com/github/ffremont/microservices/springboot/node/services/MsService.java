@@ -12,6 +12,7 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import javax.ws.rs.NotSupportedException;
@@ -58,7 +59,15 @@ public class MsService {
     private RestTemplate restTempate;
 
     public List<MicroServiceRest> getMicroServices() {
-        throw new NotSupportedException("not supported");
+        MasterUrlBuilder builder = new MasterUrlBuilder(cluster, node, masterhost, masterPort, masterCR);
+        
+        HttpHeaders headers = new HttpHeaders();
+        headers.setAccept(Arrays.asList(MediaType.parseMediaType(MS_JSON_TYPE_MIME)));
+        HttpEntity<MicroServiceRest> entity = new HttpEntity<>(headers);
+        
+        ResponseEntity<MicroServiceRest[]> response = restTempate.exchange(builder.build(), HttpMethod.GET, entity, MicroServiceRest[].class);
+        
+        return HttpStatus.OK.equals(response.getStatusCode()) ? new ArrayList<>(Arrays.asList(response.getBody())) : null;
     }
 
     /**
@@ -115,11 +124,16 @@ public class MsService {
         return null;
     }
 
-    public List<MicroServiceRest> getMs() {
-        throw new NotSupportedException("not supported");
-    }
-
     public byte[] getContentOfProperties(String msName) {
-        throw new NotSupportedException("not supported");
+        MasterUrlBuilder builder = new MasterUrlBuilder(cluster, node, masterhost, masterPort, masterCR);
+        builder.setUri(msName+"/properties");
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setAccept(Arrays.asList(MediaType.TEXT_PLAIN));
+        HttpEntity<byte[]> entity = new HttpEntity<>(headers);
+
+        ResponseEntity<byte[]> response = restTempate.exchange(builder.build(), HttpMethod.GET, entity, byte[].class);
+
+        return HttpStatus.OK.equals(response.getStatusCode()) ? response.getBody() : null;
     }
 }

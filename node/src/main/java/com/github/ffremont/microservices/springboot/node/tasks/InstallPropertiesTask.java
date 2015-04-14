@@ -26,9 +26,6 @@ import org.springframework.stereotype.Component;
 public class InstallPropertiesTask implements IMicroServiceTask {
 
     private final static Logger LOG = LoggerFactory.getLogger(InstallPropertiesTask.class);
-
-    @Value("${app.base}")
-    private String nodeBase;
     
     @Autowired
     private NodeHelper helper;

@@ -27,6 +27,7 @@ public class ShutdownTask implements IMicroServiceTask {
         PsCommand.PsCommandResult r = ps.exec();
 
         String pid = r.pid(task.getMs().getIdVersion());
+        LOG.info("Arrêt du micro service {}", pid);
 
         if (pid != null) {
             try {

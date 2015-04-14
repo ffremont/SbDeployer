@@ -21,6 +21,17 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-starter-tomcat</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-undertow</artifactId>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -48,7 +59,7 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
             </plugin>
-            <!--plugin>
+            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-assembly-plugin</artifactId>
                 <executions>
@@ -58,11 +69,11 @@
                             <goal>single</goal>
                         </goals>
                         <configuration>
-                            <descriptor>${basedir}/src/assembly/sb-manager.assembly.xml</descriptor>
+                            <descriptor>${basedir}/src/assembly/sb-node.assembly.xml</descriptor>
                         </configuration>
                     </execution>
                 </executions>
-            </plugin-->
+            </plugin>
         </plugins>
     </build>
 </project>
