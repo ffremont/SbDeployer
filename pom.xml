@@ -15,7 +15,7 @@
     
     <groupId>com.github.ffremont.microservices.springboot</groupId>
     <artifactId>sb-deployer-parent</artifactId>
-    <version>1.0.4-SNAPSHOT</version>
+    <version>1.0.4</version>
     <packaging>pom</packaging>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -83,6 +83,6 @@
         <developerConnection>scm:git:https://github.com/ffremont/SbDeployer.git</developerConnection>
         <connection>scm:git:https://github.com/ffremont/SbDeployer.git</connection>
         <url>https://github.com/ffremont/SbDeployer</url>
-        <tag>HEAD</tag>
+        <tag>1.0.4</tag>
     </scm>
 </project>
