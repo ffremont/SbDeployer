@@ -18,10 +18,35 @@ Application Java décomposée en 2 permettant de livrer / relivrer des micro ser
 ## Manager
 * Installation
 ```bash
-$ todo...
+$ wget "https://oss.sonatype.org/service/local/artifact/maven/redirect?r=releases&g=com.github.ffremont.microservices.springboot&a=manager&v=X.X.X&e=zip&c=package" -O manager_X.X.X.zip
+$ unzip manager_X.X.X.zip
+$ java -jar manager_X.X.X.jar
 ```
 * Configuration
-todo...
+  - Fichier de configuration "config/application.properties"
+```properties
+server.port=8888
+
+logging.file=logs/sb-manager.log
+
+# Nexus config
+nexus.baseurl=http://nexus.local:8081/nexus
+# Nexus repo used
+nexus.repo[0]=snapshots
+nexus.repo[1]=releases
+
+# Security access
+app.security.users.admin.pwd=secret
+app.security.users.admin.role=ADMIN
+app.security.users.nodeUser.pwd=azerty
+app.security.users.nodeUser.role=USER
+
+spring.data.mongodb.host=localhost
+spring.data.mongodb.port=27017
+spring.data.mongodb.database=test
+
+error.whitelabel.enabled=false
+```
 * API Rest
 todo....
 
