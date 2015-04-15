@@ -16,14 +16,14 @@ Application Java décomposée en 2 permettant de livrer / relivrer des micro ser
 
 
 ## Manager
-* Installation
+### Installation
 ```bash
 $ wget "https://oss.sonatype.org/service/local/artifact/maven/redirect?r=releases&g=com.github.ffremont.microservices.springboot&a=manager&v=X.X.X&e=zip&c=package" -O manager_X.X.X.zip
 $ unzip manager_X.X.X.zip
 $ java -jar manager_X.X.X.jar
 ```
-* Configuration
-  - Fichier de configuration "config/application.properties"
+### Configuration
+ * Fichier de configuration "config/application.properties"
 ```properties
 server.port=8888
 
@@ -47,12 +47,10 @@ spring.data.mongodb.database=test
 
 error.whitelabel.enabled=false
 ```
-* API Rest: http://host:port/manager
- - Micro service (ressource)
-  - /clusters/{clusterName}/nodes/{nodeName}/microservices
-    - GET [ADMIN, USER]
-     - Retourne la liste des microservices
-    - /{msName} GET [ADMIN, USER]
-     - Retourne un micro service
+### API Rest
+ * http://host:port/manager
+ * Micro service (ressource) : /clusters/{clusterName}/nodes/{nodeName}/microservices
+   * **/** GET [ADMIN, USER] : Retourne la liste des microservices
+   * **/{msName}** GET [ADMIN, USER] : Retourne un micro service
 
-  
+  TODO
