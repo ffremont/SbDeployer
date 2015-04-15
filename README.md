@@ -47,7 +47,12 @@ spring.data.mongodb.database=test
 
 error.whitelabel.enabled=false
 ```
-* API Rest
-todo....
+* API Rest: http://host:port/manager
+ - Micro service (ressource)
+  - /clusters/{clusterName}/nodes/{nodeName}/microservices
+    - GET [ADMIN, USER]
+     - Retourne la liste des microservices
+    - /{msName} GET [ADMIN, USER]
+     - Retourne un micro service
 
   
