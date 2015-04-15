@@ -58,15 +58,21 @@ public class NexusClientApi {
      * @return
      */
     public Resource getBinary(String groupId, String artifact, String packaging, String classifier, String version) {
-        String template = nexusProps.getBaseurl() + "/service/local/artifact/maven/redirect?r={r}&g={g}&a={a}&v={v}&p={p}&c={c}", url;
+        String template = nexusProps.getBaseurl() + "/service/local/artifact/maven/redirect?r={r}&g={g}&a={a}&v={v}&p={p}", url;
         Resource resource = null;
         for (String repo : nexusProps.getRepo()) {
             url = template.replace("{r}", repo).replace("{g}", groupId).replace("{a}", artifact).replace("{v}", version).replace("{p}", packaging);
-            url = url.replace("{c}", classifier);
+            if(classifier != null){
+                url = url.concat("&c="+classifier);
+            }
 
             try {
                 ResponseEntity<Resource> response = nexusClient.getForEntity(url, Resource.class);
                 resource = response.getBody();
+                
+                if(HttpStatus.OK.equals(response.getStatusCode())){
+                    break;
+                }
             } catch (HttpClientErrorException hee) {
                 if (!HttpStatus.NOT_FOUND.equals(hee.getStatusCode())) {
                     LOG.warn("Nexus : erreur cliente", hee);
@@ -121,10 +127,13 @@ public class NexusClientApi {
         headers.setAccept(Arrays.asList(MediaType.parseMediaType(MediaType.APPLICATION_JSON.toString())));
         HttpEntity<NexusDataResult> entity = new HttpEntity<>(headers);
 
-        String template = nexusProps.getBaseurl() + "/service/local/artifact/maven/resolve?r={r}&g={g}&a={a}&v={v}&p={p}&c={c}", url;
+        String template = nexusProps.getBaseurl() + "/service/local/artifact/maven/resolve?r={r}&g={g}&a={a}&v={v}&p={p}", url;
         for (String repo : nexusProps.getRepo()) {
             url = template.replace("{r}", repo).replace("{g}", groupId).replace("{a}", artifact).replace("{v}", version).replace("{p}", packaging);
-            url = url.replace("{c}", classifier);
+            if(classifier != null){
+                url = url.concat("&c="+classifier);
+            }
+
             try {
                 ResponseEntity<NexusDataResult> response = this.nexusClient.exchange(url, HttpMethod.GET, entity, NexusDataResult.class);
 

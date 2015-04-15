@@ -8,6 +8,7 @@ package com.github.ffremont.microservices.springboot.node;
 import com.github.ffremont.microservices.springboot.node.exceptions.FailStartedException;
 import com.github.ffremont.microservices.springboot.node.exceptions.FailStopedException;
 import com.github.ffremont.microservices.springboot.node.exceptions.FileMsNotFoundException;
+import com.github.ffremont.microservices.springboot.node.exceptions.InvalidInstallationException;
 import com.github.ffremont.microservices.springboot.node.exceptions.TaskException;
 import com.github.ffremont.microservices.springboot.node.services.MsService;
 import com.github.ffremont.microservices.springboot.node.services.PsCommand;
@@ -82,9 +83,14 @@ public class NodeEngine {
                         } catch (FileMsNotFoundException ex) {
                             LOG.warn("Démarrage du micro service impossible : " + ms.getId(), ex);
 
-                            unInstallTask.run(msTask);
+                            try{
+                                unInstallTask.run(msTask);
+                            }catch(InvalidInstallationException e){
+                                LOG.warn("Désinstallation impossible", e);
+                            }
                             msTask.setJar(msService.getBinary(ms.getName()));
                             try{
+                                LOG.info("Tentative d'installation du microservice {}", ms.getId());
                                 installTask.run(msTask);
                             }finally{
                                 if(msTask.getJar() != null){
@@ -99,7 +105,7 @@ public class NodeEngine {
                     }
                 }
             } catch (TaskException ex) {
-                LOG.error("Arrêt du micro service impossible : " + ms.getId());
+                LOG.error("Arrêt du micro service impossible : " + ms.getId(), ex);
             }
         }
     }

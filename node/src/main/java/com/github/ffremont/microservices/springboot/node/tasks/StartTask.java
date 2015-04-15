@@ -8,10 +8,14 @@ package com.github.ffremont.microservices.springboot.node.tasks;
 import com.github.ffremont.microservices.springboot.node.NodeHelper;
 import com.github.ffremont.microservices.springboot.node.exceptions.FailStartedException;
 import com.github.ffremont.microservices.springboot.node.exceptions.FileMsNotFoundException;
+import com.github.ffremont.microservices.springboot.node.services.PsCommand;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.logging.Level;
+import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,10 +54,15 @@ public class StartTask implements IMicroServiceTask {
             throw new FileMsNotFoundException("Jar inexistant ou invalide");
         }
         
-        ProcessBuilder ps = new ProcessBuilder("nohup", "java", "-jar", helper.targetJarOf(task.getMs()).toString(), ">/dev/null", "2>&1", "&");
+        ProcessBuilder ps = new ProcessBuilder("java", "-jar", helper.targetJarOf(task.getMs()).toString(), "&");
+        ps.directory(helper.targetDirOf(task.getMs()).toFile());
+        // run separete thread
         try {
             LOG.info("Run de {}", ps.command().toString());
-            ps.start();
+            Process p = ps.start();
+            
+            LOG.debug("Output std {}", new String(IOUtils.toByteArray(p.getInputStream())));
+            LOG.debug("Output err {}", new String(IOUtils.toByteArray(p.getErrorStream())));
         } catch (IOException ex) {
            throw new FailStartedException("Impossible de démarrer le programme java : "+task.getMs().getId(), ex);
         }

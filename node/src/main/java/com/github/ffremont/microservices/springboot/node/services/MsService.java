@@ -105,18 +105,27 @@ public class MsService {
         MasterUrlBuilder builder = new MasterUrlBuilder(cluster, node, masterhost, masterPort, masterCR);
         builder.setUri(msName + "/binary");
 
+        HttpHeaders headers = new HttpHeaders();
+        headers.setAccept(Arrays.asList(MediaType.parseMediaType("application/java-archive")));
+        HttpEntity<byte[]> entity = new HttpEntity<>(headers);
+        
         try {
             Path tempFileBinary = Files.createTempFile("node", "jarBinary");
-            URLConnection yc = (new URL(builder.build())).openConnection();
-            try (InputStream is = yc.getInputStream()) {
+            //URLConnection yc = (new URL(builder.build())).openConnection();
+            ResponseEntity<byte[]> response = restTempate.exchange(builder.build(), HttpMethod.GET, entity, byte[].class);
+            /*try (InputStream is = response.getBody()) {
                 byte[] buffer = new byte[10240]; // 10ko
                 while (0 < is.read(buffer)) {
                     Files.write(tempFileBinary, buffer);
                 }
 
                 is.close();
+            }*/
+            if(HttpStatus.OK.equals(response.getStatusCode())){
+                Files.write(tempFileBinary, response.getBody());
+                
+                return tempFileBinary.toAbsolutePath();
             }
-
         } catch (IOException ex) {
             LOG.error("Impossible de récupérer le binaire", ex);
         }

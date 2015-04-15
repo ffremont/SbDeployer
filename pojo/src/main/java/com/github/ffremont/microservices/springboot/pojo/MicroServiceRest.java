@@ -7,6 +7,7 @@ package com.github.ffremont.microservices.springboot.pojo;
 
 import java.util.List;
 import javax.validation.constraints.NotNull;
+import javax.xml.bind.annotation.XmlTransient;
 import org.hibernate.validator.constraints.Length;
 
 /**
@@ -58,6 +59,7 @@ public class MicroServiceRest {
         this.name = name;
     }
     
+    @XmlTransient
     public String getIdVersion(){
         return this.id+"_"+this.version;
     }

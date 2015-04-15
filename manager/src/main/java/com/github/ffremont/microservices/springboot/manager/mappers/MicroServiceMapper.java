@@ -10,7 +10,7 @@ import com.github.ffremont.microservices.springboot.pojo.Gav;
 import com.github.ffremont.microservices.springboot.pojo.MicroServiceRest;
 import java.util.function.Function;
 
-/**
+/** 
  *
  * @author florent
  */
@@ -27,6 +27,7 @@ public class MicroServiceMapper implements Function<MicroService, MicroServiceRe
         msRest.setUrl(t.getUrl());
         msRest.setVersion(t.getVersion());
         msRest.setMsEtat(t.getEtat().name());
+        msRest.setSha1(t.getSha1());
         
         return msRest;
     }

@@ -41,6 +41,7 @@ public class InstallPropertiesTask implements IMicroServiceTask {
         Path applicationProp = Paths.get(msVersionFolder.toString(), "application.properties");
         try {
             Files.write(applicationProp, content);
+            LOG.info("Création du fichier de propriétés {}", applicationProp.toAbsolutePath());
         } catch (IOException ex) {
             throw new InvalidInstallationException("Impossible d'installer le fichier de properties", ex);
         }

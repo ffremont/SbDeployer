@@ -5,7 +5,6 @@
  */
 package com.github.ffremont.microservices.springboot.node;
 
-import com.github.ffremont.microservices.springboot.node.tasks.MicroServiceTask;
 import com.github.ffremont.microservices.springboot.pojo.MicroServiceRest;
 import java.nio.file.Path;
 import java.nio.file.Paths;
