@@ -10,6 +10,7 @@ import com.github.ffremont.microservices.springboot.pojo.MicroServiceRest;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Properties;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,8 +24,9 @@ public class StartTaskTest {
     private final static Logger LOG = LoggerFactory.getLogger(StartTaskTest.class);
 
     @Test
-    public void testRun() throws Exception {
+    public void testRun() throws Exception {        
         StartTask task = new StartTask();
+        task.setJavaExec("");
         NodeHelper helper = new  NodeHelper();
 
         MicroServiceRest ms = new MicroServiceRest();

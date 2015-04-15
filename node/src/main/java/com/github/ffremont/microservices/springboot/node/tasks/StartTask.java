@@ -19,6 +19,7 @@ import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 /**
@@ -30,6 +31,9 @@ public class StartTask implements IMicroServiceTask {
 
     
     private final static Logger LOG = LoggerFactory.getLogger(StartTask.class);
+    
+    @Value("${app.java.exec:}")
+    private String javaExec;
     
     @Autowired
     private NodeHelper helper;
@@ -54,15 +58,16 @@ public class StartTask implements IMicroServiceTask {
             throw new FileMsNotFoundException("Jar inexistant ou invalide");
         }
         
-        ProcessBuilder ps = new ProcessBuilder("java", "-jar", helper.targetJarOf(task.getMs()).toString(), "&");
+        String javaEx = this.javaExec.isEmpty() ? System.getProperty("java.home")+"/bin/java" : this.javaExec;
+        
+        ProcessBuilder ps = new ProcessBuilder(javaEx, "-jar", helper.targetJarOf(task.getMs()).toString(), "&");
         ps.directory(helper.targetDirOf(task.getMs()).toFile());
-        // run separete thread
+        ps.redirectErrorStream(true);
+        ps.redirectOutput(ProcessBuilder.Redirect.INHERIT);
+        
         try {
             LOG.info("Run de {}", ps.command().toString());
-            Process p = ps.start();
-            
-            LOG.debug("Output std {}", new String(IOUtils.toByteArray(p.getInputStream())));
-            LOG.debug("Output err {}", new String(IOUtils.toByteArray(p.getErrorStream())));
+             ps.start();
         } catch (IOException ex) {
            throw new FailStartedException("Impossible de démarrer le programme java : "+task.getMs().getId(), ex);
         }
@@ -76,5 +81,13 @@ public class StartTask implements IMicroServiceTask {
 
     public void setHelper(NodeHelper helper) {
         this.helper = helper;
+    }
+
+    public String getJavaExec() {
+        return javaExec;
+    }
+
+    public void setJavaExec(String javaExec) {
+        this.javaExec = javaExec;
     }
 }
