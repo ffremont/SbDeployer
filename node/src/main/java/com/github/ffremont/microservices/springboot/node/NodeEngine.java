@@ -5,6 +5,7 @@
  */
 package com.github.ffremont.microservices.springboot.node;
 
+import com.github.ffremont.microservices.springboot.node.exceptions.FailStopedException;
 import com.github.ffremont.microservices.springboot.node.exceptions.FileMsNotFoundException;
 import com.github.ffremont.microservices.springboot.node.exceptions.InvalidInstallationException;
 import com.github.ffremont.microservices.springboot.node.exceptions.TaskException;
@@ -69,7 +70,11 @@ public class NodeEngine {
                 if (!psResult.isRunning(ms.getIdVersion())) {
                     // ancienne version running ?
                     if (psResult.isRunning(ms.getId())) {
-                        shutdownTask.run(msTask);
+                        try{
+                            shutdownTask.run(msTask);
+                        }catch(FailStopedException fe){
+                            LOG.warn("Arrêt du micro service impossible", fe);
+                        }
                     }
 
                     if (MsEtatRest.ACTIF.equals(ms.getMsEtat())) {
@@ -100,7 +105,7 @@ public class NodeEngine {
                     }
                 }
             } catch (TaskException ex) {
-                LOG.error("Arrêt du micro service impossible : " + ms.getId(), ex);
+                LOG.error("Mise à jour du micro service impossible : " + ms.getId(), ex);
             }
         }
     }

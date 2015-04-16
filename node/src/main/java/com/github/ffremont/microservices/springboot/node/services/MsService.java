@@ -6,14 +6,17 @@
 package com.github.ffremont.microservices.springboot.node.services;
 
 import com.github.ffremont.microservices.springboot.pojo.MicroServiceRest;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.List;
 import javax.ws.rs.NotSupportedException;
 import org.slf4j.Logger;
@@ -55,18 +58,24 @@ public class MsService {
     @Value("${app.master.contextRoot}")
     private String masterCR;
 
+    @Value("${app.master.user}")
+    private String username;
+
+    @Value("${app.master.pwd}")
+    private String password;
+
     @Autowired
     private RestTemplate restTempate;
 
     public List<MicroServiceRest> getMicroServices() {
         MasterUrlBuilder builder = new MasterUrlBuilder(cluster, node, masterhost, masterPort, masterCR);
-        
+
         HttpHeaders headers = new HttpHeaders();
         headers.setAccept(Arrays.asList(MediaType.parseMediaType(MS_JSON_TYPE_MIME)));
         HttpEntity<MicroServiceRest> entity = new HttpEntity<>(headers);
-        
+
         ResponseEntity<MicroServiceRest[]> response = restTempate.exchange(builder.build(), HttpMethod.GET, entity, MicroServiceRest[].class);
-        
+
         return HttpStatus.OK.equals(response.getStatusCode()) ? new ArrayList<>(Arrays.asList(response.getBody())) : null;
     }
 
@@ -105,37 +114,45 @@ public class MsService {
         MasterUrlBuilder builder = new MasterUrlBuilder(cluster, node, masterhost, masterPort, masterCR);
         builder.setUri(msName + "/binary");
 
-        HttpHeaders headers = new HttpHeaders();
-        headers.setAccept(Arrays.asList(MediaType.parseMediaType("application/java-archive")));
-        HttpEntity<byte[]> entity = new HttpEntity<>(headers);
-        
+        Path tempFileBinary = null;
         try {
-            Path tempFileBinary = Files.createTempFile("node", "jarBinary");
-            //URLConnection yc = (new URL(builder.build())).openConnection();
-            ResponseEntity<byte[]> response = restTempate.exchange(builder.build(), HttpMethod.GET, entity, byte[].class);
-            /*try (InputStream is = response.getBody()) {
-                byte[] buffer = new byte[10240]; // 10ko
-                while (0 < is.read(buffer)) {
-                    Files.write(tempFileBinary, buffer);
-                }
+            tempFileBinary = Files.createTempFile("node", "jarBinary");
+            HttpURLConnection managerConnection = (HttpURLConnection) (new URL(builder.build())).openConnection();
+            managerConnection.setRequestProperty("Authorization", "Basic ".concat(new String(Base64.getEncoder().encode((username + ":" + password).getBytes()))));
+            managerConnection.setRequestProperty("Accept", "application/java-archive");
+            managerConnection.connect();
 
+            if (managerConnection.getResponseCode() != 200) {
+                LOG.warn("Manager : récupération impossible, statut {}", managerConnection.getResponseCode());
+                return tempFileBinary;
+            }
+
+            FileOutputStream fos = new FileOutputStream(tempFileBinary.toFile());
+            try (InputStream is = managerConnection.getInputStream()) {
+                byte[] buffer = new byte[10240]; // 10ko
+                int read;
+                while (-1 != (read = is.read(buffer))) {
+                    fos.write(buffer, 0, read);
+                }
+                fos.flush();
                 is.close();
-            }*/
-            if(HttpStatus.OK.equals(response.getStatusCode())){
-                Files.write(tempFileBinary, response.getBody());
-                
-                return tempFileBinary.toAbsolutePath();
             }
         } catch (IOException ex) {
             LOG.error("Impossible de récupérer le binaire", ex);
+            if (tempFileBinary != null) {
+                try {
+                    Files.delete(tempFileBinary);
+                } catch (IOException e) {
+                }
+            }
         }
 
-        return null;
+        return tempFileBinary;
     }
 
     public byte[] getContentOfProperties(String msName) {
         MasterUrlBuilder builder = new MasterUrlBuilder(cluster, node, masterhost, masterPort, masterCR);
-        builder.setUri(msName+"/properties");
+        builder.setUri(msName + "/properties");
 
         HttpHeaders headers = new HttpHeaders();
         headers.setAccept(Arrays.asList(MediaType.TEXT_PLAIN));

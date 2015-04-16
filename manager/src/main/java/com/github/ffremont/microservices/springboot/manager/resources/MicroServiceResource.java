@@ -220,7 +220,18 @@ public class MicroServiceResource {
 
         Properties p = new Properties();
         props.forEach(prop -> {
-            p.put(prop.getName(), prop.getValue());
+            boolean add = false;
+            if(ms.getProperties() != null){
+                if(ms.getProperties().contains(prop.getName())){
+                    add = true;
+                }
+            }else{
+                add = true;
+            }
+            
+            if(add){
+                p.put(prop.getName(), prop.getValue());
+            }
         });
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();

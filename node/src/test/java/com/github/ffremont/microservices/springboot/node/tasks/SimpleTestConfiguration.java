@@ -66,6 +66,9 @@ public class SimpleTestConfiguration {
         myMap.put("app.master.host", "localhost");
         myMap.put("app.master.port", "9999");
         myMap.put("app.master.contextRoot", "/test");
+        
+        myMap.put("app.master.user", "");
+        myMap.put("app.master.pwd", "");
         props.putAll(myMap);
 
         configurer.setProperties(props);

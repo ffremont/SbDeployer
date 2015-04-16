@@ -53,7 +53,6 @@ public class MicroServiceRest {
     private String sha1;
     
     public MicroServiceRest() {
-        this.properties = new ArrayList<>();
     }
 
     public MicroServiceRest(String id, String name) {
