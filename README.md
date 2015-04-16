@@ -47,10 +47,21 @@ spring.data.mongodb.database=test
 
 error.whitelabel.enabled=false
 ```
-### API Rest
- * http://host:port/manager
- * Micro service (ressource) : /clusters/{clusterName}/nodes/{nodeName}/microservices
-   * **/** GET [ADMIN, USER] : Retourne la liste des microservices
-   * **/{msName}** GET [ADMIN, USER] : Retourne un micro service
 
+### API Rest
+ * http://host:port/manager/clusters/{clusterName}/nodes/{nodeName}/microservices
+#### Récupération des micro services
+ * Verbe : GET
+ * Accept : application/vnd.microservice+json
+ * Chemin : /
+ * Habilitation : ADMIN , USER
+ * Retour : MicroServiceRest[]
+ 
+#### Récupération d'un micro service
+ * Verbe : GET
+ * Accept : application/vnd.microservice+json
+ * Chemin : /{msName}
+ * Habilitation : ADMIN , USER
+ * Retour : MicroServiceRest[]
+ 
   TODO
