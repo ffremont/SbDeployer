@@ -41,7 +41,7 @@ public class NodeEngine {
 
     @Autowired
     private InstallTask installTask;
-    
+
     @Autowired
     private UninstallTask unInstallTask;
 
@@ -65,44 +65,51 @@ public class NodeEngine {
         for (MicroServiceRest ms : lesMs) {
             try {
                 msTask = new MicroServiceTask(ms);
-                msTask.setMs(ms);
-                // version courante - NOT RUNNING ?
-                if (!psResult.isRunning(ms.getIdVersion())) {
+
+                if (MsEtatRest.INACTIF.equals(ms.getMsEtat()) && psResult.isRunning(ms.getId())) {
+                    try {
+                        shutdownTask.run(msTask);
+                    } catch (FailStopedException fe) {
+                        LOG.warn("Arrêt du micro service impossible", fe);
+                    }
+                }
+
+                // version courante - NOT RUNNING ? 
+                if (MsEtatRest.ACTIF.equals(ms.getMsEtat()) && !psResult.isRunning(ms.getIdVersion())) {
                     // ancienne version running ?
                     if (psResult.isRunning(ms.getId())) {
-                        try{
+                        try {
                             shutdownTask.run(msTask);
-                        }catch(FailStopedException fe){
+                        } catch (FailStopedException fe) {
                             LOG.warn("Arrêt du micro service impossible", fe);
                         }
                     }
 
-                    if (MsEtatRest.ACTIF.equals(ms.getMsEtat())) {
-                        try {
-                            startTask.run(msTask);
-                        } catch (FileMsNotFoundException ex) {
-                            LOG.warn("Démarrage du micro service impossible : " + ms.getId(), ex);
+                    try {
+                        startTask.run(msTask);
+                    } catch (FileMsNotFoundException ex) {
+                        LOG.warn("Démarrage du micro service impossible : " + ms.getId(), ex);
 
-                            try{
-                                unInstallTask.run(msTask);
-                            }catch(InvalidInstallationException e){
-                                LOG.warn("Désinstallation impossible", e);
-                            }
-                            msTask.setJar(msService.getBinary(ms.getName()));
-                            try{
-                                LOG.info("Tentative d'installation du microservice {}", ms.getId());
-                                installTask.run(msTask);
-                            }finally{
-                                if(msTask.getJar() != null){
-                                    try {
-                                        Files.delete(msTask.getJar());
-                                    } catch (IOException ex1) {
-                                        LOG.warn("Suppression du binaire temporaire impossible", ex1);
-                                    }
+                        try {
+                            unInstallTask.run(msTask);
+                        } catch (InvalidInstallationException e) {
+                            LOG.warn("Désinstallation impossible", e);
+                        }
+                        msTask.setJar(msService.getBinary(ms.getName()));
+                        try {
+                            LOG.info("Tentative d'installation du microservice {}", ms.getId());
+                            installTask.run(msTask);
+                        } finally {
+                            if (msTask.getJar() != null) {
+                                try {
+                                    Files.delete(msTask.getJar());
+                                } catch (IOException ex1) {
+                                    LOG.warn("Suppression du binaire temporaire impossible", ex1);
                                 }
                             }
                         }
                     }
+
                 }
             } catch (TaskException ex) {
                 LOG.error("Mise à jour du micro service impossible : " + ms.getId(), ex);
