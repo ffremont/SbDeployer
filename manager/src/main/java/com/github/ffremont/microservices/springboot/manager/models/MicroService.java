@@ -5,6 +5,7 @@
  */
 package com.github.ffremont.microservices.springboot.manager.models;
 
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 import org.springframework.data.annotation.Id;
@@ -24,6 +25,8 @@ import org.springframework.data.mongodb.core.mapping.Document;
 public class MicroService {
     @Id
     private String id;
+    
+    private Date lastModified;
     
     private String name;
     
@@ -47,6 +50,7 @@ public class MicroService {
 
     public MicroService() {
         this.etat = MsEtat.Actif;
+        this.lastModified = new Date();
     }
 
     public MicroService(String cluster, String node, String name, Gav gav) {
@@ -143,6 +147,14 @@ public class MicroService {
 
     public void setSha1(String sha1) {
         this.sha1 = sha1;
+    }
+
+    public Date getLastModified() {
+        return lastModified;
+    }
+
+    public void setLastModified(Date lastModified) {
+        this.lastModified = lastModified;
     }
     
     public String generateVersion(){

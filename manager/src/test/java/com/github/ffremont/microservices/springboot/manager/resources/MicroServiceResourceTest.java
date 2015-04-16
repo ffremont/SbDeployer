@@ -9,11 +9,13 @@ import com.github.ffremont.microservices.springboot.manager.JerseyConfig;
 import com.github.ffremont.microservices.springboot.manager.SbManagerWorldApp;
 import com.github.ffremont.microservices.springboot.manager.stores.ValidMicroServiceStore;
 import com.github.ffremont.microservices.springboot.manager.stores.ValidPropertiesStore;
+import com.github.ffremont.microservices.springboot.pojo.Gav;
 import com.github.ffremont.microservices.springboot.pojo.MicroServiceRest;
 import java.util.Arrays;
 import org.junit.After;
 import org.junit.Test;
 import static org.junit.Assert.*;
+import org.junit.Ignore;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -126,5 +128,21 @@ public class MicroServiceResourceTest {
         ResponseEntity<Resource> response = this.restTemplate.exchange(this.getUrlResource("myCluster", "myNodeA", "toti/binary"), HttpMethod.GET, entity, Resource.class);
         
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+    }
+    
+    @Test
+    @Ignore
+    public void addMicroserviceOk(){
+        MicroServiceRest msr = new MicroServiceRest();
+        msr.setName("TestName");
+        msr.setGav(new Gav("g1", "a1", "p1", "c1", "v1"));
+        
+        HttpHeaders headers = new HttpHeaders();
+        headers.setAccept(Arrays.asList(MediaType.parseMediaType(MicroServiceResource.TYPE_MIME)));
+        HttpEntity<MicroServiceRest> entity = new HttpEntity<>(msr, headers);
+        ResponseEntity<String> response = this.restTemplate.exchange(this.getUrlResource("myCluster", "myNodeA", ""), HttpMethod.POST, entity, String.class);
+        
+        assertEquals(response.getStatusCode(), HttpStatus.OK);
+        
     }
 }

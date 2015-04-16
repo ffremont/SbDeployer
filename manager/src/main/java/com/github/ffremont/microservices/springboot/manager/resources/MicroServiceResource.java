@@ -8,8 +8,10 @@ package com.github.ffremont.microservices.springboot.manager.resources;
 import com.github.ffremont.microservices.springboot.manager.JerseyConfig;
 import com.github.ffremont.microservices.springboot.manager.annotations.ExpirationCache;
 import com.github.ffremont.microservices.springboot.manager.annotations.NoCache;
-import com.github.ffremont.microservices.springboot.manager.mappers.MicroServiceMapper;
+import com.github.ffremont.microservices.springboot.manager.mappers.MicroServiceFromRestMapper;
+import com.github.ffremont.microservices.springboot.manager.mappers.MicroServiceToRestMapper;
 import com.github.ffremont.microservices.springboot.manager.models.MicroService;
+import com.github.ffremont.microservices.springboot.manager.models.MsEtat;
 import com.github.ffremont.microservices.springboot.manager.models.Property;
 import com.github.ffremont.microservices.springboot.manager.models.repo.IMicroServiceRepo;
 import com.github.ffremont.microservices.springboot.manager.models.repo.IPropertyRepo;
@@ -19,7 +21,10 @@ import com.github.ffremont.microservices.springboot.manager.security.Roles;
 import com.github.ffremont.microservices.springboot.pojo.MicroServiceRest;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Properties;
 import javax.annotation.security.RolesAllowed;
@@ -43,6 +48,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.core.io.Resource;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
@@ -71,7 +77,7 @@ public class MicroServiceResource {
 
     @Autowired
     private IPropertyRepo propRepo;
-    
+
     @Autowired
     private NexusClientApi nexusClientApi;
 
@@ -90,7 +96,7 @@ public class MicroServiceResource {
         Page<MicroService> microservices = microServiceRepo.findByClusterAndNode(this.cluster, this.node, new PageRequest(0, MAX_PAGE_MS));
 
         List<MicroServiceRest> list = new ArrayList<>();
-        MicroServiceMapper msMapper = new MicroServiceMapper();
+        MicroServiceToRestMapper msMapper = new MicroServiceToRestMapper();
         microservices.forEach(ms -> {
             list.add(msMapper.apply(ms));
         });
@@ -114,7 +120,7 @@ public class MicroServiceResource {
             throw new WebApplicationException("Microservice not found", Status.NOT_FOUND);
         }
 
-        return Response.ok((new MicroServiceMapper()).apply(ms)).build();
+        return Response.ok((new MicroServiceToRestMapper()).apply(ms)).build();
     }
 
     /**
@@ -134,15 +140,15 @@ public class MicroServiceResource {
         // récupération du binaire
         MicroService ms = this.microServiceRepo.findOneByClusterAndNodeAndName(this.cluster, this.node, msName);
 
-        if(ms == null){
+        if (ms == null) {
             throw new WebApplicationException("Microservice introuvable", Status.NOT_FOUND);
         }
         NexusData data = nexusClientApi.getData(ms.getGav().getGroupId(), ms.getGav().getArtifactId(), ms.getGav().getPackaging(), ms.getGav().getClassifier(), ms.getGav().getVersion());
-        
-        if(data == null){
+
+        if (data == null) {
             throw new WebApplicationException("Livrable nexus introuvable", Status.NOT_FOUND);
         }
-        
+
         EntityTag etag = new EntityTag(data.getSha1());
         Response.ResponseBuilder builder = request.evaluatePreconditions(etag);
         if (builder == null) {
@@ -203,28 +209,73 @@ public class MicroServiceResource {
      */
     @POST
     @RolesAllowed({Roles.ADMIN})
-    public Response addMicroservice(MicroService newMs) {
-        throw new UnsupportedOperationException("addMicroservice");
+    public Response addMicroservice(MicroServiceRest newMs) {
+        MicroService ms = (new MicroServiceFromRestMapper()).apply(newMs);
+        
+        NexusData data = nexusClientApi.getData(ms.getGav().getGroupId(), ms.getGav().getArtifactId(), ms.getGav().getPackaging(), ms.getGav().getClassifier(), ms.getGav().getVersion());
+
+        if (data == null) {
+            throw new WebApplicationException("Livrable nexus introuvable à partir des informations du nouveau micro service", Status.BAD_REQUEST);
+        }
+        
+        ms.setCluster(this.cluster);
+        ms.setNode(this.node);
+        ms.setSha1(data.getSha1());
+
+        try {
+            this.microServiceRepo.save(ms);
+        } catch (DuplicateKeyException dke) {
+            LOG.error("Micro service already exists", dke);
+            throw new WebApplicationException("Micro service already exists", Status.CONFLICT);
+        }
+
+        return Response.ok().build();
     }
 
     /**
      * Mise à jour du ms
      *
+     * @param msName
      * @param ms
      * @return
      */
     @PUT
     @Path("{msName}")
     @RolesAllowed({Roles.ADMIN})
-    public Response modifyMicroservice(@PathParam("msName") String msName, MicroService ms) {
-        throw new UnsupportedOperationException("modifyMicroservice : " + msName);
+    public Response modifyMicroservice(@PathParam("msName") String msName, MicroServiceRest ms) {
+        MicroService msSrc = microServiceRepo.findOneByClusterAndNodeAndName(this.cluster, this.node, msName);
+        if (msSrc == null) {
+            throw new WebApplicationException("Microservice introuvable", Status.NOT_FOUND);
+        }
+
+        if (!msSrc.getName().equals(ms.getName()) || !msSrc.getId().equals(ms.getId())) {
+            throw new WebApplicationException("Le micro service n'est pas cohérent avec la base de données", Status.BAD_REQUEST);
+        }
+
+        MicroService msUpdated = (new MicroServiceFromRestMapper()).apply(ms);
+
+        this.microServiceRepo.save(msUpdated);
+
+        return Response.ok().build();
     }
 
     @DELETE
     @Path("{msName}")
     @RolesAllowed({Roles.ADMIN})
     public Response deleteMicroservice(@PathParam("msName") String msName) {
-        throw new UnsupportedOperationException("deleteMicroservice");
+        MicroService ms = microServiceRepo.findOneByClusterAndNodeAndName(this.cluster, this.node, msName);
+        if (ms == null) {
+            throw new WebApplicationException("Microservice introuvable", Status.NOT_FOUND);
+        }
+
+        Date minDate = Date.from(Instant.now().minus(3, ChronoUnit.MINUTES));
+        if (MsEtat.Inactif.equals(ms.getEtat()) && ms.getLastModified().before(minDate)) {
+            this.microServiceRepo.delete(ms.getId());
+        }else{
+            throw new WebApplicationException("La délai minimum de 3min avant la suppression n'est pas respecté", Status.BAD_REQUEST);
+        }
+        
+        return Response.ok().build();
     }
 
     public String getCluster() {

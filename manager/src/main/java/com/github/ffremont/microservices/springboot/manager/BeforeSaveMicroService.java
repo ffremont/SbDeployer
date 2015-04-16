@@ -7,6 +7,7 @@ package com.github.ffremont.microservices.springboot.manager;
 
 import com.github.ffremont.microservices.springboot.manager.models.MicroService;
 import com.mongodb.DBObject;
+import java.util.Date;
 import org.springframework.data.mongodb.core.mapping.event.AbstractMongoEventListener;
 import org.springframework.stereotype.Component;
 
@@ -20,6 +21,7 @@ public class BeforeSaveMicroService extends AbstractMongoEventListener<MicroServ
     @Override
     public void onBeforeSave(MicroService source, DBObject dbo) {
         source.setVersion(source.generateVersion());
+        source.setLastModified(new Date());
 
         super.onBeforeSave(source, dbo);
     }

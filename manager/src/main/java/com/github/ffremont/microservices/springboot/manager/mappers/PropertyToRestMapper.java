@@ -13,7 +13,7 @@ import java.util.function.Function;
  *
  * @author florent
  */
-public class PropertyMapper implements Function<Property, PropertyRest> {
+public class PropertyToRestMapper implements Function<Property, PropertyRest> {
 
     @Override
     public PropertyRest apply(Property t) {

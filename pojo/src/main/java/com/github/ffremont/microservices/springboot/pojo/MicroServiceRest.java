@@ -5,6 +5,7 @@
  */
 package com.github.ffremont.microservices.springboot.pojo;
 
+import java.util.ArrayList;
 import java.util.List;
 import javax.validation.constraints.NotNull;
 import javax.xml.bind.annotation.XmlTransient;
@@ -52,9 +53,11 @@ public class MicroServiceRest {
     private String sha1;
     
     public MicroServiceRest() {
+        this.properties = new ArrayList<>();
     }
 
     public MicroServiceRest(String id, String name) {
+        this();
         this.id = id;
         this.name = name;
     }

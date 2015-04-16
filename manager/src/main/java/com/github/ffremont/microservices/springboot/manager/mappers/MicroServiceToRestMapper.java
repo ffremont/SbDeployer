@@ -14,7 +14,7 @@ import java.util.function.Function;
  *
  * @author florent
  */
-public class MicroServiceMapper implements Function<MicroService, MicroServiceRest>{
+public class MicroServiceToRestMapper implements Function<MicroService, MicroServiceRest>{
 
     @Override
     public MicroServiceRest apply(MicroService t) {

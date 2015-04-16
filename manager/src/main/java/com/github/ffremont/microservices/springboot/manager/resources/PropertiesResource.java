@@ -6,7 +6,7 @@
 package com.github.ffremont.microservices.springboot.manager.resources;
 
 import com.github.ffremont.microservices.springboot.manager.annotations.NoCache;
-import com.github.ffremont.microservices.springboot.manager.mappers.PropertyMapper;
+import com.github.ffremont.microservices.springboot.manager.mappers.PropertyToRestMapper;
 import com.github.ffremont.microservices.springboot.manager.models.Property;
 import com.github.ffremont.microservices.springboot.manager.models.repo.IPropertyRepo;
 import com.github.ffremont.microservices.springboot.manager.security.Roles;
@@ -65,7 +65,7 @@ public class PropertiesResource {
         if (prop == null) {
             throw new WebApplicationException("Property not found", Status.NOT_FOUND);
         } else {
-            return Response.ok((new PropertyMapper()).apply(prop)).build();
+            return Response.ok((new PropertyToRestMapper()).apply(prop)).build();
         }
     }
 
