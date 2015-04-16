@@ -50,7 +50,9 @@ error.whitelabel.enabled=false
 
 ### API Rest
  * http://host:port/manager/clusters/{clusterName}/nodes/{nodeName}/microservices
+ 
 #### Récupération des micro services
+ * Description : Retourne la liste de tous les micro services du cluster
  * Verbe : GET
  * Accept : application/vnd.microservice+json
  * Chemin : /
@@ -58,10 +60,55 @@ error.whitelabel.enabled=false
  * Retour : MicroServiceRest[]
  
 #### Récupération d'un micro service
+ * Description : Retourne les données sur le micro service
  * Verbe : GET
  * Accept : application/vnd.microservice+json
  * Chemin : /{msName}
  * Habilitation : ADMIN , USER
  * Retour : MicroServiceRest[]
  
+#### Récupération du jar
+ * Description : Retourne le jar venant de Nexus
+ * Verbe : GET
+ * Accept : application/java-archive
+ * Chemin : /{msName}/binary
+ * Cache : cache par validation avec etag
+ * Habilitation : ADMIN , USER
+ * Retour : le binaire (content-type = application/java-archive)
+  
+#### Récupération du fichier de propriétés
+ * Description : Retourne le contenu du fichier de propriété. Il contient les properties du "namespaceProperties" du micro service. Cette liste peut être affimée via une "whitelist" qui se nomme "properties". Si la liste est null, tout le namespace sera utilisé.
+ * Verbe : GET
+ * Accept : text/plain"
+ * Chemin : /{msName}/properties
+ * Cache par expiration : 86400
+ * Habilitation : ADMIN , USER
+ * Retour : le binaire (content-type = application/java-archive)
+
+#### Ajout d'un micro service
+ * Description : Permet d'ajouter un micro service à un node sur un cluster.
+ * Verbe : POST
+ * Contenu : json de l'objet "MicroServiceRest"
+ * Accept : application/vnd.microservice+json
+ * Chemin : /
+ * Habilitation : ADMIN 
+ * Retour : code 200
+
+#### Modification d'un micro service
+ * Description : Permet de modifier un micro service existant.
+ * Verbe : PUT
+ * Contenu : json de l'objet "MicroServiceRest"
+ * Accept : application/vnd.microservice+json
+ * Chemin : /{msName}
+ * Habilitation : ADMIN 
+ * Retour : code 200
+ 
+#### Suppression d'un micro service
+ * Description : Permet de supprimer un micro service sur un node d'un cluster. Le micro service doit être "inactif" depuis au moins 3 minutes pour être supprimé.
+ * Verbe : DELETE
+ * Contenu : json de l'objet "MicroServiceRest"
+ * Chemin : /{msName}
+ * Habilitation : ADMIN 
+ * Retour : code 200
+
   TODO
