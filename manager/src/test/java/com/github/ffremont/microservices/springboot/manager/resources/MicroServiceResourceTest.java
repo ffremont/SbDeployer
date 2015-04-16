@@ -41,7 +41,7 @@ import org.springframework.web.client.RestTemplate;
  * @author florent
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringApplicationConfiguration(classes = SbManagerWorldApp.class)
+@SpringApplicationConfiguration(classes = SbManagerWorldApp.class )
 @WebIntegrationTest({"server.port=0", "management.port=0"})
 @ActiveProfiles("test")
 public class MicroServiceResourceTest {
@@ -128,21 +128,5 @@ public class MicroServiceResourceTest {
         ResponseEntity<Resource> response = this.restTemplate.exchange(this.getUrlResource("myCluster", "myNodeA", "toti/binary"), HttpMethod.GET, entity, Resource.class);
         
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
-    }
-    
-    @Test
-    @Ignore
-    public void addMicroserviceOk(){
-        MicroServiceRest msr = new MicroServiceRest();
-        msr.setName("TestName");
-        msr.setGav(new Gav("g1", "a1", "p1", "c1", "v1"));
-        
-        HttpHeaders headers = new HttpHeaders();
-        headers.setAccept(Arrays.asList(MediaType.parseMediaType(MicroServiceResource.TYPE_MIME)));
-        HttpEntity<MicroServiceRest> entity = new HttpEntity<>(msr, headers);
-        ResponseEntity<String> response = this.restTemplate.exchange(this.getUrlResource("myCluster", "myNodeA", ""), HttpMethod.POST, entity, String.class);
-        
-        assertEquals(response.getStatusCode(), HttpStatus.OK);
-        
     }
 }

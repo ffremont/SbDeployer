@@ -6,7 +6,6 @@
 package com.github.ffremont.microservices.springboot.manager;
 
 import com.github.ffremont.microservices.springboot.manager.models.MicroService;
-import com.mongodb.DBObject;
 import java.util.Date;
 import org.springframework.data.mongodb.core.mapping.event.AbstractMongoEventListener;
 import org.springframework.stereotype.Component;
@@ -16,14 +15,14 @@ import org.springframework.stereotype.Component;
  * @author florent
  */
 @Component
-public class BeforeSaveMicroService extends AbstractMongoEventListener<MicroService> {
+public class BeforeConvertMicroService extends AbstractMongoEventListener<MicroService> {
 
     @Override
-    public void onBeforeSave(MicroService source, DBObject dbo) {
+    public void onBeforeConvert(MicroService source) {
         source.setVersion(source.generateVersion());
         source.setLastModified(new Date());
-
-        super.onBeforeSave(source, dbo);
+        
+        super.onBeforeConvert(source);
     }
 
 }

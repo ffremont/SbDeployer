@@ -30,7 +30,7 @@ public class MicroServiceFromRestMapper implements Function<MicroServiceRest, Mi
         ms.setGav(new com.github.ffremont.microservices.springboot.manager.models.Gav(t.getGav().getGroupId(), t.getGav().getArtifactId(), t.getGav().getClassifier(), t.getGav().getVersion()));
         ms.setProperties(t.getProperties());
         
-        return null;
+        return ms;
     }
     
 }

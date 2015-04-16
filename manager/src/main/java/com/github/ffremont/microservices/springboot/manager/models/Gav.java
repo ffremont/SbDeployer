@@ -22,6 +22,7 @@ public class Gav {
     }
 
     public Gav(String groupId, String artifactId, String classifier, String version) {
+        this();
         this.groupId = groupId;
         this.artifactId = artifactId;
         this.version = version;

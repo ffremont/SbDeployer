@@ -19,8 +19,16 @@ import com.github.ffremont.microservices.springboot.manager.nexus.NexusClientApi
 import com.github.ffremont.microservices.springboot.manager.nexus.NexusData;
 import com.github.ffremont.microservices.springboot.manager.security.Roles;
 import com.github.ffremont.microservices.springboot.pojo.MicroServiceRest;
+import java.io.BufferedWriter;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
+import java.nio.file.Files;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -43,6 +51,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Request;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
+import javax.ws.rs.core.StreamingOutput;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -152,8 +161,26 @@ public class MicroServiceResource {
         EntityTag etag = new EntityTag(data.getSha1());
         Response.ResponseBuilder builder = request.evaluatePreconditions(etag);
         if (builder == null) {
-            Resource resource = nexusClientApi.getBinary(ms.getGav().getGroupId(), ms.getGav().getArtifactId(), ms.getGav().getPackaging(), ms.getGav().getClassifier(), ms.getGav().getVersion());
-            builder = Response.ok(resource.getInputStream());
+            java.nio.file.Path tmpBinary = nexusClientApi.getBinary(ms.getGav().getGroupId(), ms.getGav().getArtifactId(), ms.getGav().getPackaging(), ms.getGav().getClassifier(), ms.getGav().getVersion());
+
+            StreamingOutput stream = (OutputStream os) -> {
+                byte[] buffer = new byte[10240];
+                int read;
+                try (InputStream is = new FileInputStream(tmpBinary.toFile())) {
+                    while (-1 != (read = is.read(buffer))) {
+                        os.write(buffer, 0, read);
+                    }
+                }finally{
+                    try{
+                        Files.delete(tmpBinary);
+                    }catch(IOException e){
+                        LOG.warn("Suppression impossible du fichier temporaire lié au binaire de nexus", e);
+                    }
+                }
+                
+                os.flush();
+            };
+            builder = Response.ok(stream);
         }
         builder.tag(etag);
 
@@ -211,13 +238,12 @@ public class MicroServiceResource {
     @RolesAllowed({Roles.ADMIN})
     public Response addMicroservice(MicroServiceRest newMs) {
         MicroService ms = (new MicroServiceFromRestMapper()).apply(newMs);
-        
-        NexusData data = nexusClientApi.getData(ms.getGav().getGroupId(), ms.getGav().getArtifactId(), ms.getGav().getPackaging(), ms.getGav().getClassifier(), ms.getGav().getVersion());
 
+        NexusData data = nexusClientApi.getData(ms.getGav().getGroupId(), ms.getGav().getArtifactId(), ms.getGav().getPackaging(), ms.getGav().getClassifier(), ms.getGav().getVersion());
         if (data == null) {
             throw new WebApplicationException("Livrable nexus introuvable à partir des informations du nouveau micro service", Status.BAD_REQUEST);
         }
-        
+
         ms.setCluster(this.cluster);
         ms.setNode(this.node);
         ms.setSha1(data.getSha1());
@@ -253,6 +279,13 @@ public class MicroServiceResource {
         }
 
         MicroService msUpdated = (new MicroServiceFromRestMapper()).apply(ms);
+        NexusData data = nexusClientApi.getData(msUpdated.getGav().getGroupId(), msUpdated.getGav().getArtifactId(), msUpdated.getGav().getPackaging(), msUpdated.getGav().getClassifier(), msUpdated.getGav().getVersion());
+        if (data == null) {
+            throw new WebApplicationException("Livrable nexus introuvable à partir des informations du micro service", Status.BAD_REQUEST);
+        }
+        msUpdated.setCluster(this.cluster);
+        msUpdated.setNode(this.node);
+        msUpdated.setSha1(data.getSha1());
 
         this.microServiceRepo.save(msUpdated);
 
@@ -271,10 +304,10 @@ public class MicroServiceResource {
         Date minDate = Date.from(Instant.now().minus(3, ChronoUnit.MINUTES));
         if (MsEtat.Inactif.equals(ms.getEtat()) && ms.getLastModified().before(minDate)) {
             this.microServiceRepo.delete(ms.getId());
-        }else{
+        } else {
             throw new WebApplicationException("La délai minimum de 3min avant la suppression n'est pas respecté", Status.BAD_REQUEST);
         }
-        
+
         return Response.ok().build();
     }
 

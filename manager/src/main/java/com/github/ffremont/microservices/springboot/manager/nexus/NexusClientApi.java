@@ -7,8 +7,10 @@ package com.github.ffremont.microservices.springboot.manager.nexus;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
@@ -57,58 +59,54 @@ public class NexusClientApi {
      * @param packaging
      * @return
      */
-    public Resource getBinary(String groupId, String artifact, String packaging, String classifier, String version) {
+    public Path getBinary(String groupId, String artifact, String packaging, String classifier, String version) {
         String template = nexusProps.getBaseurl() + "/service/local/artifact/maven/redirect?r={r}&g={g}&a={a}&v={v}&p={p}", url;
-        Resource resource = null;
+        //Resource resource = null;
+        Path tempFileBinary = null;
+        HttpURLConnection nexusConnexion;
         for (String repo : nexusProps.getRepo()) {
             url = template.replace("{r}", repo).replace("{g}", groupId).replace("{a}", artifact).replace("{v}", version).replace("{p}", packaging);
-            if(classifier != null){
-                url = url.concat("&c="+classifier);
+            if (classifier != null) {
+                url = url.concat("&c=" + classifier);
             }
 
             try {
-                ResponseEntity<Resource> response = nexusClient.getForEntity(url, Resource.class);
-                resource = response.getBody();
-                
-                if(HttpStatus.OK.equals(response.getStatusCode())){
+                tempFileBinary = Files.createTempFile("oo", "");
+                FileOutputStream fos = new FileOutputStream(tempFileBinary.toFile());
+
+                URL nexus = new URL(url);
+                nexusConnexion = (HttpURLConnection) nexus.openConnection();
+                nexusConnexion.connect();
+                if (nexusConnexion.getResponseCode() != 200) {
+                    LOG.warn("Nexus : récupération impossible pour le repo {}, statut {}", repo, nexusConnexion.getResponseCode());
+                    continue;
+                }
+
+                try (InputStream is = nexusConnexion.getInputStream()) {
+                    byte[] buffer = new byte[10240]; // 10ko
+                    int read;
+                    while (-1 != (read = is.read(buffer))) {
+                        fos.write(buffer, 0, read);
+                    }
+                    fos.flush();
+                    is.close();
+                    
                     break;
+                } finally {
+                    nexusConnexion.disconnect();
+
                 }
-            } catch (HttpClientErrorException hee) {
-                if (!HttpStatus.NOT_FOUND.equals(hee.getStatusCode())) {
-                    LOG.warn("Nexus : erreur cliente", hee);
-                    throw hee;
+            } catch (IOException ex) {
+                if (tempFileBinary != null) {
+                    try {
+                        Files.delete(tempFileBinary);
+                    } catch (IOException e) {
+                    }
                 }
             }
         }
 
-        /*Path tempFileBinary = null;
-        try {
-            tempFileBinary = Files.createTempFile("oo", "");
-            
-            URL oracle = new URL(template);
-            URLConnection yc = oracle.openConnection();
-            try (InputStream is = yc.getInputStream()) {
-                byte[] buffer = new byte[10240]; // 10ko
-                while (0 < is.read(buffer)) {
-                    Files.write(tempFileBinary, buffer);
-                }
-                
-                is.close();
-            } 
-        } catch (IOException ex) {
-            if(tempFileBinary != null){
-                try {
-                    Files.delete(tempFileBinary);
-                } catch (IOException e) {}
-            }
-        }
-        try {
-            InputStream i = new FileInputStream(tempFileBinary.toFile());
-        } catch (FileNotFoundException ex) {
-            
-        }*/
-
-        return resource;
+        return tempFileBinary;
     }
 
     /**
@@ -130,8 +128,8 @@ public class NexusClientApi {
         String template = nexusProps.getBaseurl() + "/service/local/artifact/maven/resolve?r={r}&g={g}&a={a}&v={v}&p={p}", url;
         for (String repo : nexusProps.getRepo()) {
             url = template.replace("{r}", repo).replace("{g}", groupId).replace("{a}", artifact).replace("{v}", version).replace("{p}", packaging);
-            if(classifier != null){
-                url = url.concat("&c="+classifier);
+            if (classifier != null) {
+                url = url.concat("&c=" + classifier);
             }
 
             try {
