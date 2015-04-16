@@ -61,7 +61,6 @@ public class NexusClientApi {
      */
     public Path getBinary(String groupId, String artifact, String packaging, String classifier, String version) {
         String template = nexusProps.getBaseurl() + "/service/local/artifact/maven/redirect?r={r}&g={g}&a={a}&v={v}&p={p}", url;
-        //Resource resource = null;
         Path tempFileBinary = null;
         HttpURLConnection nexusConnexion;
         for (String repo : nexusProps.getRepo()) {
@@ -71,9 +70,6 @@ public class NexusClientApi {
             }
 
             try {
-                tempFileBinary = Files.createTempFile("oo", "");
-                FileOutputStream fos = new FileOutputStream(tempFileBinary.toFile());
-
                 URL nexus = new URL(url);
                 nexusConnexion = (HttpURLConnection) nexus.openConnection();
                 nexusConnexion.connect();
@@ -81,6 +77,8 @@ public class NexusClientApi {
                     LOG.warn("Nexus : récupération impossible pour le repo {}, statut {}", repo, nexusConnexion.getResponseCode());
                     continue;
                 }
+                tempFileBinary = Files.createTempFile("nexusBinary", "sbDeployer");
+                FileOutputStream fos = new FileOutputStream(tempFileBinary.toFile());
 
                 try (InputStream is = nexusConnexion.getInputStream()) {
                     byte[] buffer = new byte[10240]; // 10ko
@@ -92,11 +90,10 @@ public class NexusClientApi {
                     is.close();
                     
                     break;
-                } finally {
-                    nexusConnexion.disconnect();
-
                 }
             } catch (IOException ex) {
+                LOG.debug("Une erreur à l'alimentation du fichier temporaire",ex);
+                // si une exception se produit, je supp. le fichier temporaire
                 if (tempFileBinary != null) {
                     try {
                         Files.delete(tempFileBinary);

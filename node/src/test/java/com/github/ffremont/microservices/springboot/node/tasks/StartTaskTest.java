@@ -10,7 +10,6 @@ import com.github.ffremont.microservices.springboot.pojo.MicroServiceRest;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Properties;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

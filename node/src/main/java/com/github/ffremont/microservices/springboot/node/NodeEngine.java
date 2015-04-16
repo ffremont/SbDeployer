@@ -5,8 +5,6 @@
  */
 package com.github.ffremont.microservices.springboot.node;
 
-import com.github.ffremont.microservices.springboot.node.exceptions.FailStartedException;
-import com.github.ffremont.microservices.springboot.node.exceptions.FailStopedException;
 import com.github.ffremont.microservices.springboot.node.exceptions.FileMsNotFoundException;
 import com.github.ffremont.microservices.springboot.node.exceptions.InvalidInstallationException;
 import com.github.ffremont.microservices.springboot.node.exceptions.TaskException;
@@ -21,10 +19,7 @@ import com.github.ffremont.microservices.springboot.pojo.MicroServiceRest;
 import com.github.ffremont.microservices.springboot.pojo.MsEtatRest;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
-import java.util.logging.Level;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

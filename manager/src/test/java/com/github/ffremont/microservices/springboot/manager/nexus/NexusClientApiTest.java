@@ -8,6 +8,7 @@ package com.github.ffremont.microservices.springboot.manager.nexus;
 import com.github.ffremont.microservices.springboot.manager.resources.MicroServiceResource;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Arrays;
 import org.junit.Test;
 import static org.junit.Assert.*;
@@ -56,20 +57,17 @@ public class NexusClientApiTest {
     }
     
     @Test
-    @Ignore
-    public void testGetBinary() throws IOException {
+    public void testGetBinaryFailed() throws IOException {
         String g = "gg", a = "aa", v = "1.0.0", c = "cc", p = "jar";
         
         // init mock
         String path = Thread.currentThread().getContextClassLoader().getResource("empty.jar").getPath();
         ResponseEntity responseEntity = new ResponseEntity(new FileSystemResource(path), HttpStatus.OK);
-        when(this.nexusRestTemplate.getForEntity(prop.getBaseurl()+"/service/local/artifact/maven/redirect?r=snapshots&g="+g+"&a="+a+"&v="+v+"&p="+p+"&c="+c, Resource.class)).thenReturn(responseEntity);
+        //when(this.nexusRestTemplate.getForEntity(prop.getBaseurl()+"/service/local/artifact/maven/redirect?r=snapshots&g="+g+"&a="+a+"&v="+v+"&p="+p+"&c="+c, Resource.class)).thenReturn(responseEntity);
         
-        /*Resource r = nexus.getBinary(g, a, p, c, v);
+        Path r = nexus.getBinary(g, a, p, c, v);
         
-        assertNotNull(r);
-        assertNotNull(r.getFile());
-        assertTrue(Files.readAllBytes(r.getFile().toPath()).length > 0);*/
+        assertNull(r);
     }
 
     @Test
