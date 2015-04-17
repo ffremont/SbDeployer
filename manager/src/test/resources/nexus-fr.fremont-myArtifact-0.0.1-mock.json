@@ -1,0 +1,10 @@
+{
+    "data" :{
+        "groupId" : "fr.ffremont",
+        "artifactId" : "myArtifact",
+        "version": "0.0.1",
+        "extension" : "jar",
+        "snapshot" : "false",
+        "sha1": "azerty"
+    }
+}

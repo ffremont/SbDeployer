@@ -107,6 +107,7 @@ public class NexusClientApi {
     }
 
     /**
+     * A METTRE EN CACHE
      * Retourne la donnée Nexus correspondant au binaire
      *
      * @param groupId
@@ -130,9 +131,11 @@ public class NexusClientApi {
             }
 
             try {
+                LOG.info("nexusClient url {}", url);
                 ResponseEntity<NexusDataResult> response = this.nexusClient.exchange(url, HttpMethod.GET, entity, NexusDataResult.class);
 
                 data = response.getBody().getData();
+                LOG.info("Récupération avec succès de nexus");
                 break;
             } catch (HttpClientErrorException hee) {
                 if (!HttpStatus.NOT_FOUND.equals(hee.getStatusCode())) {

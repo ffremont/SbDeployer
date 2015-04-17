@@ -19,15 +19,11 @@ import com.github.ffremont.microservices.springboot.manager.nexus.NexusClientApi
 import com.github.ffremont.microservices.springboot.manager.nexus.NexusData;
 import com.github.ffremont.microservices.springboot.manager.security.Roles;
 import com.github.ffremont.microservices.springboot.pojo.MicroServiceRest;
-import java.io.BufferedWriter;
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
 import java.nio.file.Files;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -56,7 +52,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
-import org.springframework.core.io.Resource;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -106,8 +101,16 @@ public class MicroServiceResource {
 
         List<MicroServiceRest> list = new ArrayList<>();
         MicroServiceToRestMapper msMapper = new MicroServiceToRestMapper();
+
         microservices.forEach(ms -> {
-            list.add(msMapper.apply(ms));
+            MicroServiceRest msRest;
+            NexusData data = nexusClientApi.getData(ms.getGav().getGroupId(), ms.getGav().getArtifactId(), ms.getGav().getPackaging(), ms.getGav().getClassifier(), ms.getGav().getVersion());
+            if (data == null) {
+                throw new WebApplicationException("Livrable nexus introuvable à partir des informations du nouveau micro service", Status.BAD_REQUEST);
+            }
+            msRest = msMapper.apply(ms);
+            msRest.setSha1(data.getSha1());
+            list.add(msRest);
         });
 
         return Response.ok(list).build();
@@ -128,8 +131,15 @@ public class MicroServiceResource {
         if (ms == null) {
             throw new WebApplicationException("Microservice not found", Status.NOT_FOUND);
         }
-
-        return Response.ok((new MicroServiceToRestMapper()).apply(ms)).build();
+        
+        NexusData data = nexusClientApi.getData(ms.getGav().getGroupId(), ms.getGav().getArtifactId(), ms.getGav().getPackaging(), ms.getGav().getClassifier(), ms.getGav().getVersion());
+        if (data == null) {
+            throw new WebApplicationException("Livrable nexus introuvable à partir des informations du nouveau micro service", Status.BAD_REQUEST);
+        }
+        MicroServiceRest msRest = (new MicroServiceToRestMapper()).apply(ms);
+        msRest.setSha1(data.getSha1());
+        
+        return Response.ok(msRest).build();
     }
 
     /**
@@ -170,14 +180,14 @@ public class MicroServiceResource {
                     while (-1 != (read = is.read(buffer))) {
                         os.write(buffer, 0, read);
                     }
-                }finally{
-                    try{
+                } finally {
+                    try {
                         Files.delete(tmpBinary);
-                    }catch(IOException e){
+                    } catch (IOException e) {
                         LOG.warn("Suppression impossible du fichier temporaire lié au binaire de nexus", e);
                     }
                 }
-                
+
                 os.flush();
             };
             builder = Response.ok(stream);
@@ -221,15 +231,15 @@ public class MicroServiceResource {
         Properties p = new Properties();
         props.forEach(prop -> {
             boolean add = false;
-            if(ms.getProperties() != null){
-                if(ms.getProperties().contains(prop.getName())){
+            if (ms.getProperties() != null) {
+                if (ms.getProperties().contains(prop.getName())) {
                     add = true;
                 }
-            }else{
+            } else {
                 add = true;
             }
-            
-            if(add){
+
+            if (add) {
                 p.put(prop.getName(), prop.getValue());
             }
         });
@@ -250,14 +260,8 @@ public class MicroServiceResource {
     public Response addMicroservice(MicroServiceRest newMs) {
         MicroService ms = (new MicroServiceFromRestMapper()).apply(newMs);
 
-        NexusData data = nexusClientApi.getData(ms.getGav().getGroupId(), ms.getGav().getArtifactId(), ms.getGav().getPackaging(), ms.getGav().getClassifier(), ms.getGav().getVersion());
-        if (data == null) {
-            throw new WebApplicationException("Livrable nexus introuvable à partir des informations du nouveau micro service", Status.BAD_REQUEST);
-        }
-
         ms.setCluster(this.cluster);
         ms.setNode(this.node);
-        ms.setSha1(data.getSha1());
 
         try {
             this.microServiceRepo.save(ms);
@@ -290,13 +294,8 @@ public class MicroServiceResource {
         }
 
         MicroService msUpdated = (new MicroServiceFromRestMapper()).apply(ms);
-        NexusData data = nexusClientApi.getData(msUpdated.getGav().getGroupId(), msUpdated.getGav().getArtifactId(), msUpdated.getGav().getPackaging(), msUpdated.getGav().getClassifier(), msUpdated.getGav().getVersion());
-        if (data == null) {
-            throw new WebApplicationException("Livrable nexus introuvable à partir des informations du micro service", Status.BAD_REQUEST);
-        }
         msUpdated.setCluster(this.cluster);
         msUpdated.setNode(this.node);
-        msUpdated.setSha1(data.getSha1());
 
         this.microServiceRepo.save(msUpdated);
 

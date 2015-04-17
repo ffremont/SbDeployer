@@ -46,8 +46,6 @@ public class MicroService {
     
     private MsEtat etat;
 
-    private String sha1;
-
     public MicroService() {
         this.etat = MsEtat.Actif;
         this.lastModified = new Date();
@@ -139,14 +137,6 @@ public class MicroService {
 
     public void setEtat(MsEtat etat) {
         this.etat = etat;
-    }
-    
-    public String getSha1() {
-        return sha1;
-    }
-
-    public void setSha1(String sha1) {
-        this.sha1 = sha1;
     }
 
     public Date getLastModified() {

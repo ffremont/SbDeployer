@@ -8,9 +8,12 @@ package com.github.ffremont.microservices.springboot.manager.resources;
 import com.github.ffremont.microservices.springboot.manager.security.Roles;
 import javax.annotation.security.RolesAllowed;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.core.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -44,5 +47,13 @@ public class ClustersResource {
         nodeResource.setCluster(clusterName);
         
         return nodeResource;
+    }
+    
+    @POST
+    @Path("/{clusterName}/microservices")
+    public Response addMsToNodes(@PathParam("clusterName") String clusterName){
+        
+        
+        return Response.ok().build();
     }
 }
