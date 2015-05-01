@@ -34,5 +34,11 @@
             <destName>application.properties</destName>
             <filtered>false</filtered>
         </file>
+        <file>
+            <source>${project.basedir}/src/main/resources/logback.xml</source>
+            <outputDirectory>/config</outputDirectory>
+            <destName>logback.xml</destName>
+            <filtered>false</filtered>
+        </file>
     </files>
 </assembly>
