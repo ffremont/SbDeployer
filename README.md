@@ -149,3 +149,7 @@ app.base=/tmp/testSbNode
 
 error.whitelabel.enabled=false
 ```
+# Limitation
+* Unix
+* MongoDb
+* Java 8
