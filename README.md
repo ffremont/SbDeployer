@@ -111,4 +111,41 @@ error.whitelabel.enabled=false
  * Habilitation : ADMIN 
  * Retour : code 200
 
-  TODO
+## Node
+### Installation
+```bash
+$ wget "https://oss.sonatype.org/service/local/artifact/maven/redirect?r=releases&g=com.github.ffremont.microservices.springboot&a=node&v=X.X.X&e=zip&c=package" -O node_X.X.X.zip
+$ unzip node_X.X.X.zip
+$ java -jar node_X.X.X.jar
+```
+### Configuration
+ * Fichier de configuration "config/application.properties"
+```properties
+server.port=8889
+
+# debug
+logging.level.com.github.ffremont=DEBUG
+
+# Possibilité de définir la version de java à utiliser, sinon JAVA_HOME par défaut
+#app.java.exec=/home/florent/Applications/jdk1.8.0_20/bin/java
+
+logging.file=logs/sb-manager.log
+logging.config=config/logback.xml
+
+# Master config
+app.master.host=localhost
+app.master.port=8888
+app.master.contextRoot=manager
+
+# Master access
+app.master.user=nodeUser
+app.master.pwd=azerty
+
+# Node config
+app.node=myNodeA
+app.cluster=myCluster
+# Répertoire où seront stockés les livrables
+app.base=/tmp/testSbNode
+
+error.whitelabel.enabled=false
+```
